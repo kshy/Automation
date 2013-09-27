@@ -1,0 +1,618 @@
+*** Settings ***
+Documentation     SG - Enrollment - Smoke Test
+Suite Setup       Setup
+Suite Teardown    Teardown
+Test Setup        Initialize Variables
+Test Teardown     Teardown of Test
+Resource          ../../shp_sg_keywords.txt
+
+*** Test Cases ***
+Test Smoke test Enrollment from case - Broker
+    [Documentation]    *SG - Enrollment - Smoke Test: Broker*
+    ...
+    ...    *Smoke Test:*   Smoke test for SG Enrollment.
+    ...
+    ...    *User Type:* Broker
+    ...
+    [Tags]    sg    enrollment    smoke     short
+    Given Broker logs in to application
+    When Selects SG Case
+    And Wait a Bit
+    And Enter details in Create Small Group Case page
+    And Wait Until Page Contains    Case Summary - Small Group
+    And Click Link    New Business
+    And Click Button    Start Enrollment
+
+    
+    #Employer Enrollment
+    And Enter details in Enrollment Set-Up page for case    2
+    And Enter details in Census page for Employees    2
+    And Select type in Apply Options page    online
+    And Enter details in Employer Representative page
+    And Enter details in Start Employer Enrollment page     Bob    B    Broker
+    And Wait a Bit
+    
+    #Update Plan Offering
+    And Click Button    Update Plan Offering
+    And Pass Plan Offering Options page
+    And Select Plan By Name    Tradition $500-10% PLATINUM
+    And Select Plan By Name    Independence $1,000-20% GOLD
+    And Select Plan By Name    Independence $2,000-10% HDHP SILVER
+    And Click Button    Add Plans
+    And Click Button    Continue
+    And Select Plan Election for Employee    1    Tradition $500-10% PLATINUM
+    And Select Plan Election for Employee    2    Independence $2,000-10% HDHP SILVER
+    And Click Button    Done
+    
+    #Employer Application
+    And Click Button    Complete Application
+    And Enter details in Small Employer Disclosure    Bob    B    Broker
+#    And Enter details in Employer Information page
+    And Enter details in General page
+#    And Enter details in Employer Contribution(s)
+#    And Enter details in Eligibility Requirements page
+    And Enter details in Eligibility page    2
+    And Enter details in Continuation/Disability page
+    And Enter details in Health Plan Information
+    And Enter details in HRA Contribution page
+#HSA Contribution page should appear only if HDHP plan was selected
+    And Enter details in HSA Contribution page
+#    And Enter details in Current Carrier page
+    And Enter details in Current Coverage page
+    And Sleep    10
+    And Pass Application Summary page
+#    And Enter details in Signature page    Bob    B    Broker
+    And Enter details in Employer's Statement page
+    And Enter details in Certification page    Bob    B    Broker
+    And Wait a Bit
+    And Pass Employer Submission Confirmation page
+    #Start Employee Enrollment Process    
+    And Click Button    Start Enrollment
+    And Pass Verify Census page
+    And Pass Start Employee Enrollment page
+    
+    #Employee 1
+    And Start Enrollment for Employee    1
+    And Pass Prior to Applying page
+    And Enter details in Employee Information page for Employee    1
+#    And Pass Dependent Information page
+    And Select Plan in Coverage Selection page    Tradition $500-10% PLATINUM
+#    And Pass Waiver page
+    And Enter details in Other Coverage Information page
+    And Pass Health Provider page
+    And Pass Race Ethnicity page
+    And Pass Enrollment Summary page
+    And Enter details in Terms and Conditions page
+    And Enter details in Authorization page
+    And Enter details in Signature page    Bob    B    Broker
+    And Pass Employee Submission Confirmation page
+    
+    #Employee 2
+    And Start Enrollment for Employee    2
+    And Pass Prior to Applying page
+    And Enter details in Employee Information page for Employee    2
+#    And Pass Dependent Information page
+    And Select Plan in Coverage Selection page    Independence $1,000-20% GOLD
+#    And Pass Waiver page
+    And Enter details in Other Coverage Information page
+    And Pass Health Provider page
+    And Pass Race Ethnicity page
+    And Pass Enrollment Summary page
+    And Enter details in Terms and Conditions page
+    And Enter details in Authorization page
+    And Enter details in Signature page    Bob    B    Broker
+    And Pass Employee Submission Confirmation page
+    
+    #Updating Checklist
+    And Click Link    Enrollment Summary
+    And Click Button    Update Checklist
+    And Enter details in Enrollment Summary Checklist page
+    
+    #Submit Enrollment for Review
+    And Click Button    Submit
+    And Submit for Review Confirmation
+    And Logs out from the application
+    
+    #Login as UW to Search Case, Assign it to himself and Approve it
+    And UW Manager logs in to application
+    And UW Manager assign SG case to himself
+    And Search for case
+    And Wait a Bit
+    And Open enrollment after search
+    And Click Button    View Decision
+    And UW Approve enrollment
+    And Logs out from the application
+    
+    #Broker log in to application to continue work
+    And Broker logs in to application
+    And Search for case
+    And Wait a Bit
+    And Open enrollment after search
+    
+    #Start Acceptance
+    And Click Button    Start Acceptance
+    And Unselect Plan By Name    Tradition $500-10% PLATINUM
+    And Unselect Plan By Name    Independence $2,000-10% HDHP SILVER
+    And Click Button     Continue
+    And Enter details in Acceptance options page
+    And Pass Start Employer Acceptance page
+    And Click Button    Close
+    
+    #View Employee Elections
+    Click Button    View Elections
+    And Select Final Plan for Employee    1    Independence $1,000-20% GOLD
+    And Select Final Plan for Employee    2    Independence $1,000-20% GOLD
+    And Click Button    Finalize Employee Elections
+    And Pass Enrollment Summary - Finalize Acceptance page
+    And Pass Acceptance Confirmation page
+
+Test Smoke test Enrollment - Broker
+    [Documentation]    *SG - Enrollment - Smoke Test: Broker*
+    ...
+    ...    *Smoke Test:*   Smoke test for SG Enrollment.
+    ...
+    ...    *User Type:* Broker
+    ...
+    [Tags]    sg    enrollment    smoke     long
+    Given Broker logs in to application
+    When Selects SG Enroll
+    
+    #Employer Enrollment
+    And Enter details in Enrollment Set-Up page    2
+    And Enter details in Census page for Employees    2
+    And Select type in Apply Options page    paper
+#    And Enter details in Employer Representative page
+    And Enter details in Start Employer Enrollment page     Bob    B    Broker
+    And Wait a Bit
+    
+    #Update Plan Offering
+    And Click Button    Update Plan Offering
+    And Pass Plan Offering Options page
+    And Select Plan By Name    Tradition $500-10% PLATINUM
+    And Select Plan By Name    Independence $1,000-20% GOLD
+    And Select Plan By Name    Independence $2,000-10% HDHP SILVER
+    And Click Button    Add Plans
+    And Click Button    Continue
+    And Select Plan Election for Employee    1    Tradition $500-10% PLATINUM
+    And Select Plan Election for Employee    2    Independence $1,000-20% GOLD
+    And Click Button    Done
+    
+    #Employer Application
+    And Click Button    Complete Application
+    And Enter details in Small Employer Disclosure    Bob    B    Broker
+#    And Enter details in Employer Information page
+    And Enter details in General page
+#    And Enter details in Employer Contribution(s)
+#    And Enter details in Eligibility Requirements page
+    And Enter details in Eligibility page    2
+    And Enter details in Continuation/Disability page
+    And Enter details in Health Plan Information
+    And Enter details in HRA Contribution page
+#HSA Contribution page should appear only if HDHP plan was selected
+    And Enter details in HSA Contribution page
+#    And Enter details in Current Carrier page
+    And Enter details in Current Coverage page
+    And Pass Application Summary page
+#    And Enter details in Signature page    Bob    B    Broker
+    And Enter details in Employer's Statement page
+    And Enter details in Certification page    Bob    B    Broker
+    And Wait a Bit
+    And Pass Employer Submission Confirmation page
+    #Start Employee Enrollment Process    
+    And Click Button    Start Enrollment
+    And Pass Verify Census page
+    And Pass Start Employee Enrollment page
+    
+    #Employee 1
+    And Start Enrollment for Employee    1
+    And Pass Prior to Applying page
+    And Enter details in Employee Information page for Employee    1
+#    And Pass Dependent Information page
+    And Select Plan in Coverage Selection page    Tradition $500-10% PLATINUM
+#    And Pass Waiver page
+    And Enter details in Other Coverage Information page
+    And Pass Health Provider page
+    And Pass Race Ethnicity page
+    And Pass Enrollment Summary page
+    And Enter details in Terms and Conditions page
+    And Enter details in Authorization page
+    And Enter details in Signature page    Bob    B    Broker
+    And Pass Employee Submission Confirmation page
+    
+    #Employee 2
+    And Start Enrollment for Employee    2
+    And Pass Prior to Applying page
+    And Enter details in Employee Information page for Employee    2
+#    And Pass Dependent Information page
+    And Select Plan in Coverage Selection page    Independence $2,000-10% HDHP SILVER
+#    And Pass Waiver page
+    And Enter details in Other Coverage Information page
+    And Pass Health Provider page
+    And Pass Race Ethnicity page
+    And Pass Enrollment Summary page
+    And Enter details in Terms and Conditions page
+    And Enter details in Authorization page
+    And Enter details in Signature page    Bob    B    Broker
+    And Pass Employee Submission Confirmation page
+    
+    #Updating Checklist
+    And Click Link    Enrollment Summary
+    And Click Button    Update Checklist
+    And Enter details in Enrollment Summary Checklist page
+    
+    #Submit Enrollment for Review
+    And Click Button    Submit
+    And Submit for Review Confirmation
+    And Logs out from the application
+    
+    #Login as UW to Search Case, Assign it to himself and Approve it
+    And UW Manager logs in to application
+    And UW Manager assign SG case to himself
+    And Search for case
+    And Wait a Bit
+    And Open enrollment after search
+    And Click Button    View Decision
+    And UW Approve enrollment
+    And Logs out from the application
+    
+    #Broker log in to application to continue work
+    And Broker logs in to application
+    And Search for case
+    And Wait a Bit
+    And Open enrollment after search
+    
+    #Start Final Proposal
+    And Click Button    Start Final Proposal
+    And Pass Plan Offering Options page
+    And Pass Plans page
+    And Pass Employee Elections page
+    And Pass Rates page
+    And Enter details in Generate Proposal page
+    And Enter details in Generate Proposal page
+    Then Page Should Contain    Proposal generation and delivery completed.
+    And Click OK in Popup
+    And Verify Title    Security Health Plan - Enrollment Summary
+
+    
+    
+    #Start Acceptance
+    And Click Button    Start Acceptance
+    And Unselect Plan By Name    Independence $1,000-20% GOLD
+    And Click Button     Continue
+    And Enter details in Acceptance options page    paper
+    And Pass Start Employer Acceptance page
+    And Pass Employer Demographics page
+    And Pass Employer Contribution page
+    And Pass Eligibility Requirements page
+    And Enter details in Coverage Details page
+    And Pass Employer Acceptance Summary
+    And Enter details in Employer Acceptance Signature page    Bob    B    Broker
+    And Wait a Bit
+    
+    #View Employee Elections
+    Click Button    View Elections
+    And Select Final Plan for Employee    1    Independence $2,000-10% HDHP SILVER
+    And Select Final Plan for Employee    2    Independence $2,000-10% HDHP SILVER
+    And Click Button    Finalize Employee Elections
+    And Pass Enrollment Summary - Finalize Acceptance page
+    And Pass Acceptance Confirmation page
+
+
+#Need to be updated
+#Test Smoke test Enrollment - Sales Manager
+#    [Documentation]    *SG - Enrollment - Smoke Test: Sales*
+#    ...
+#    ...    *Smoke Test:*   Smoke test for SG Enrollment.
+#    ...
+#    ...    *User Type:* Sales Manager
+#    ...
+#    
+#    Given Sales Manager logs in to application
+#    When Selects SG Enroll
+#    
+#    #Employer Enrollment
+#    And Enter details in Enrollment Set-Up page    2
+#    And Enter details in Census page for Employees    2
+#    And Select type in Apply Options page    online
+#    And Enter details in Employer Representative page
+#    And Pass Start Employer Enrollment page
+#    And Wait a Bit
+#    
+#    #Update Plann Offering
+#    And Click Button    Update Plan Offering
+#    And Pass Plan Offering Options page
+#    And Select Plan By Name    myBlue HSA Bronze 3500
+#    And Select Plan By Name    SimplyBlue 5500 BRONZE
+#    And Select Plan By Name    SimplyBlue 4750 BRONZE
+#    And Click Button    Add Plans
+#    And Click Button    Continue
+#    And Select Plan Election for Employee    1    myBlue HSA Bronze 3500
+#    And Select Plan Election for Employee    2    SimplyBlue 5500 BRONZE
+#    And Click Button    Done
+#    
+#    #Employer Application
+#    And Click Button    Complete Application
+#    And Enter details in Employer Information page
+#    And Enter details in Employer Contribution(s)
+#    And Enter details in Eligibility Requirements page
+#    And Enter details in Current Carrier page
+#    And Pass Application Summary page
+#    And Enter details in Signature page    Martin    \    Salesmanager
+#    And Pass Employer Submission Confirmation page
+#    
+#    And Click Button    Start Enrollment
+#    And Pass Verify Census page
+#    And Pass Start Employee Enrollment page
+#    
+#    #Employee 1
+#    And Start Enrollment for Employee    1
+#    And Pass Prior to Applying page
+#    And Enter details in Employee Information page for Employee    1
+##    And Pass Dependent Information page
+#    And Select Plan in Coverage Selection page    SimplyBlue 5500 BRONZE
+#    And Pass Other Coverage page    
+#    And Pass Enrollment Summary page
+#    And Enter details in Signature page    Martin    \    Salesmanager
+#    And Pass Employee Submission Confirmation page
+#    
+#    #Employee 2
+#    And Start Enrollment for Employee    2
+#    And Pass Prior to Applying page
+#    And Enter details in Employee Information page for Employee    2
+#    And Pass Dependent Information page
+#    And Select Plan in Coverage Selection page    SimplyBlue 5500 BRONZE    
+#    And Pass Other Coverage page
+#    And Pass Enrollment Summary page
+#    And Enter details in Signature page    Martin    \    Salesmanager
+#    And Pass Employee Submission Confirmation page
+#    
+#    #Updating Checklist
+#    And Click Link    Enrollment Summary
+#    And Click Button    Update Checklist
+#    And Enter details in Enrollment Summary Checklist page
+#    
+#    #Submit Enrollment for Review
+#    And Click Button    Submit
+#    And Submit for Review Confirmation
+#    And Logs out from the application
+#    
+#    #Login as UW to Search Case, Assign it to himself and Approve it
+#    And UW Manager logs in to application
+#    And UW Manager assign SG case to himself
+#    And Search for case
+#    And Open enrollment after search
+#    And Click Button    View Decision
+#    And UW Approve enrollment
+#    And Logs out from the application
+#    
+#    #Sales log in to application to continue work
+#    And Sales Manager logs in to application
+#    And Search for case
+#    And Open enrollment after search
+#    
+#    #Start Acceptance
+#    And Click Button    Start Acceptance
+#    And Pass Select Plans page
+#
+#Test Smoke test Enrollment - UW Manager
+#    [Documentation]    *SG - Enrollment - Smoke Test: UW Manager*
+#    ...
+#    ...    *Smoke Test:*   Smoke test for SG Enrollment.
+#    ...
+#    ...    *User Type:* UW Manager
+#    ...
+#    
+#    Given UW Manager logs in to application
+#    When Selects SG Enroll
+#    
+#    #Employer Enrollment
+#    And Enter details in Enrollment Set-Up page    2    UW
+#    And Enter details in Census page for Employees    2
+#    And Select type in Apply Options page    online
+#    And Enter details in Employer Representative page
+#    And Pass Start Employer Enrollment page
+#    And Wait a Bit
+#    
+#    #Update Plann Offering
+#    And Click Button    Update Plan Offering
+#    And Pass Plan Offering Options page
+#    And Select Plan By Name    myBlue HSA Bronze 3500
+#    And Select Plan By Name    SimplyBlue 5500 BRONZE
+#    And Select Plan By Name    SimplyBlue 4750 BRONZE
+#    And Click Button    Add Plans
+#    And Click Button    Continue
+#    And Select Plan Election for Employee    1    myBlue HSA Bronze 3500
+#    And Select Plan Election for Employee    2    SimplyBlue 5500 BRONZE
+#    And Click Button    Done
+#    
+#    #Employer Application
+#    And Click Button    Complete Application
+#    And Enter details in Employer Information page
+#    And Enter details in Employer Contribution(s)
+#    And Enter details in Eligibility Requirements page
+#    And Enter details in Current Carrier page
+#    And Pass Application Summary page
+#    And Enter details in Signature page    Martin    \    Uwmanager
+#    And Pass Employer Submission Confirmation page
+#    
+#    And Click Button    Start Enrollment
+#    And Pass Verify Census page
+#    And Pass Start Employee Enrollment page
+#    
+#    #Employee 1
+#    And Start Enrollment for Employee    1
+#    And Pass Prior to Applying page
+#    And Enter details in Employee Information page for Employee    1
+#    And Pass Dependent Information page
+#    And Select Plan in Coverage Selection page    SimplyBlue 5500 BRONZE
+#    And Pass Other Coverage page
+#    And Pass Enrollment Summary page
+#    And Enter details in Signature page    Martin    \    Uwmanager
+#    And Pass Employee Submission Confirmation page
+#    
+#    #Employee 2
+#    And Start Enrollment for Employee    2
+#    And Pass Prior to Applying page
+#    And Enter details in Employee Information page for Employee    2
+#    And Pass Dependent Information page
+#    And Select Plan in Coverage Selection page    SimplyBlue 5500 BRONZE
+#    And Pass Other Coverage page
+#    And Pass Enrollment Summary page
+#    And Enter details in Signature page    Martin    \    Uwmanager
+#    And Pass Employee Submission Confirmation page
+#    And Logs out from the application
+#    
+#    #Broker login to application and search for case
+#    Given Broker logs in to application
+#    And Search for case
+#    And Open enrollment after search
+#    
+#    #Updating Checklist
+#    And Click Link    Enrollment Summary
+#    And Click Button    Update Checklist
+#    And Enter details in Enrollment Summary Checklist page
+#    
+#    #Submit Enrollment for Review
+#    And Click Button    Submit
+#    And Submit for Review Confirmation
+#    And Logs out from the application
+#    
+#    #Login as UW to Search Case, Assign it to himself and Approve it
+#    And UW Manager logs in to application
+#    And UW Manager assign SG case to himself
+#    And Search for case
+#    And Open enrollment after search
+#    And Click Button    View Decision
+#    And UW Approve enrollment
+#    And Logs out from the application
+#    
+#    #Sales log in to application to continue work
+#    And Sales Manager logs in to application
+#    And Search for case
+#    And Open enrollment after search
+#    
+#    #Start Acceptance
+#    And Click Button    Start Acceptance
+#    And Pass Select Plans page
+#
+Test Smoke test Enrollment - Employer
+    [Documentation]    *SG - Enrollment - Smoke Test: Employer*
+    ...
+    ...    *Smoke Test:*   Smoke test for SG Enrollment.
+    ...
+    ...    *User Type:* Employer
+    ...
+    [Tags]    draft
+    Given Sales Representer logs in to application
+    When Selects SG Case
+    And Wait a Bit
+    And Enter details in Create Small Group Case page
+    And Wait Until Page Contains    Case Summary - Small Group
+    And Click Link    New Business
+    And Click Button    Start Enrollment
+    
+    #Employer Enrollment
+    And Enter details in Enrollment Set-Up page for case    3
+    And Enter details in Census page for Employees    3
+    And Select type in Apply Options page    online
+    And Enter details in Employer Representative page
+    And Enter details in Start Employer Enrollment page     Internal    I    User
+    And Wait a Bit
+    
+    #Update Plan Offering
+    And Click Button    Update Plan Offering
+    And Pass Plan Offering Options page
+    And Select Plan By Name    Tradition $1,000-40% SILVER
+    And Select Dental Rider For Plan    Tradition $1,000-40% SILVER    High
+    And Select Plan By Name    Tradition $1,750-20% HDHP SILVER
+    And Select Plan By Name    Independence $3,350-40% HDHP BRONZE
+    And Select Dental Rider For Plan    Independence $3,350-40% HDHP BRONZE    Low
+    And Click Button    Add Plans
+    And Click Button    Continue
+    And Select Plan Election for Employee    1    Tradition $1,000-40% SILVER
+    And Select Plan Election for Employee    2    Independence $3,350-40% HDHP BRONZE
+    And Click Button    Done
+    And Logs out from the application
+    
+    #Employer logs in to application
+    And Connect Gmail
+    And User open Registration Confirmation email message
+    And User navigates to Registration page
+    And User enter Registration details
+    And Pass User Profile Information page
+    And Enter details in Create Login Information page
+    
+    #Employer Application
+    And Click Button    Complete Application
+    And Enter details in Employer Information page
+    And Enter details in Employer Contribution(s)
+    And Enter details in Eligibility Requirements page
+    And Enter details in Current Carrier page
+    And Pass Application Summary page
+    And Enter details in Signature page    ${employerName}    \    Employer
+    And Pass Employer Submission Confirmation page
+    
+    And Click Button    Start Employee Enrollment
+    And Pass Verify Census page
+    And Pass Start Employee Enrollment page
+    
+    #Employee 1
+    And Start Enrollment for Employee    1
+    And Pass Prior to Applying page
+    And Enter details in Employee Information page for Employee    1
+    And Pass Dependent Information page
+    And Select Plan in Coverage Selection page    SimplyBlue 5500 BRONZE
+    And Pass Other Coverage page    
+    And Pass Enrollment Summary page
+    And Enter details in Signature page    ${employerName}    \    Employer
+    And Pass Employee Submission Confirmation page
+    
+    #Employee 2
+    And Start Enrollment for Employee    2
+    And Pass Prior to Applying page
+    And Enter details in Employee Information page for Employee    2
+    And Pass Dependent Information page
+    And Select Plan in Coverage Selection page    SimplyBlue 5500 BRONZE
+    And Pass Other Coverage page    
+    And Pass Enrollment Summary page
+    And Enter details in Signature page    ${employerName}    \    Employer
+    And Pass Employee Submission Confirmation page
+ 
+    Click Button    Return To My Account
+    And Logs out from the application
+    
+    
+    #Broker login to application and search for case
+    Given Broker logs in to application
+    And Search for case
+    And Open enrollment after search
+    
+    #Updating Checklist
+    And Click Link    Enrollment Summary
+    And Click Button    Update Checklist
+    And Enter details in Enrollment Summary Checklist page
+    
+    #Submit Enrollment for Review
+    And Click Button    Submit
+    And Submit for Review Confirmation
+    And Logs out from the application
+    
+    #Login as UW to Search Case, Assign it to himself and Approve it
+    And UW Manager logs in to application
+    And UW Manager assign SG case to himself
+    And Search for case
+    And Open enrollment after search
+    And Click Button    View Decision
+    And UW Approve enrollment
+    And Logs out from the application
+    
+    #Broker log in to application to continue work
+    And Broker logs in to application
+    And Search for case
+    And Open enrollment after search
+    
+    #Start Acceptance
+    And Click Button    Start Acceptance
+    And Pass Select Plans page
+
+    

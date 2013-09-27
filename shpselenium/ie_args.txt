@@ -1,0 +1,10 @@
+--variable  HOST:http://vshpwksqa01.ct.com
+--variable  HOST_EXCL:https://vshpwksuat02.ct.com
+--variable  HOST_EXCL:https://shpuat01.connecture.com
+--variable  CONTEXT_ROOT:/shp
+--variable  BROWSER:ie
+--variable  SELENIUM_TIMEOUT:17
+--variable  SELENIUM_IMPLICIT_WAIT:1
+--variable  REMOTE_URL:
+--variable  DCAPS:
+--variable  DEBUG_MODE:false

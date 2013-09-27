@@ -1,0 +1,13 @@
+--variable  HOST:https://securityhealth-stg.healthinsurance-asp.com
+--variable  HOST_EXCL:https://vshpwksuat02.ct.com
+--variable  HOST_EXCL:https://shpuat01.connecture.com
+--variable  CONTEXT_ROOT:/shp
+--variable  BROWSER:ff
+--variable  SELENIUM_TIMEOUT:15
+--variable  SELENIUM_IMPLICIT_WAIT:2
+--variable  SELENIUM_SPEED:0.5
+--variable  APPCONF_LOAD_TIMEOUT:20
+--variable  EMAIL_TIMEOUT:900
+--variable  REMOTE_URL:
+--variable  DCAPS:
+--variable  DEBUG_MODE:false

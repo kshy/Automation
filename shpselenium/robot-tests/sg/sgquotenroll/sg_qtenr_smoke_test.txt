@@ -1,0 +1,62 @@
+*** Settings ***
+Documentation     SG - Quote - Smoke Test
+Suite Setup       Setup
+Suite Teardown    Teardown
+Test Setup        Initialize Variables
+Test Teardown     Teardown of Test
+Resource          ../../shp_sg_keywords.txt
+
+*** Test Cases ***
+Test Smoke test SG Quote-Enroll - Broker
+    [Documentation]    *Test Smoke test SG Quote-Enroll - Broker*
+    ...
+    ...    *Smoke Test:*   Smoke test for SG Quote-Enroll flow.
+    ...
+    ...    *User Type:* Broker
+    ...
+    [Tags]    draft
+    Given Broker logs in to application
+    When Selects SG Quote
+    And Enter details in Enrollment Set-Up page    15
+    And Enter details in Census page through Import file    Census_09112013_1.xls
+    And Select Plan By Name    Tradition $500-10%
+    And Select Plan By Name    Independence $1,000-20%
+    And Select Plan By Name    Independence $2,000-10% HDHP
+    And Select Dental Rider For Plan    Tradition $500-10%    Low
+    And Click Button    Add Plans
+    And Click Button    Continue
+    And Pass Rates page
+    And Click Button    Save Quote
+    And Wait Until Page Contains    Quote Summary - Preliminary Quote 
+    #Start Employer Enrollment
+    And Click Button    Enroll
+    And Wait Until Page Contains    Start Enrollment Confirmation
+    And Click Button    Yes
+    And Wait Until Page Contains    Select Plans
+    And Select Plan By Name on Select Plans page    Tradition $500-10%
+    And Select Plan By Name on Select Plans page    Independence $2,000-10% HDHP SILVER
+    And Click Button   Continue
+    And Pass Verify Census page
+    And Select type in Apply Options page    paper
+    And Enter details in Start Employer Enrollment page     Bob    B    Broker
+    #Employer Application
+    And Click Button    Complete Application
+    And Enter details in Small Employer Disclosure    Bob    B    Broker
+    And Enter details in General page
+    And Enter details in Eligibility page    2
+    And Enter details in Continuation/Disability page
+    And Enter details in Health Plan Information
+    And Enter details in HRA Contribution page
+#HSA Contribution page should appear only if HDHP plan was selected
+    And Enter details in HSA Contribution page
+#    And Enter details in Current Carrier page
+    And Enter details in Current Coverage page
+    And Pass Application Summary page
+    And Enter details in Employer's Statement page
+    And Enter details in Certification page    Bob    B    Broker
+    And Pass Employer Submission Confirmation page
+    #Start Employee Enrollment Process    
+    And Click Button    Start Enrollment
+    And Pass Verify Census page
+    And Pass Start Employee Enrollment page
+

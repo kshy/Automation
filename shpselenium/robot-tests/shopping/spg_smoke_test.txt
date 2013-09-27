@@ -1,0 +1,302 @@
+*** Settings ***
+Suite Setup       Setup
+Suite Teardown    Teardown
+#Test Setup        Initialize Variables
+Test Setup        Setup of Test
+Test Teardown     Teardown of Test
+Resource          ../shp_spg_keywords.txt
+
+*** TestCases ***
+
+Test Smoke test - Consumer completes shopping - Primary
+    [Documentation]    
+    ...
+    ...    *User Type:* Consumer (Anonymous user)
+    ...
+    ...    *Applicant combination :* Primary
+    ...
+    [Tags]    shopping    smoke     short    consumer
+    
+    Given Anonymous User click Find Plan and proceed to Welcome page
+    When Wait a Bit
+    And Click Link    Get Started
+    And Click Link    Skip & Shop Plans
+    And Enter demographic data for the primary applicant    53910    1    Leonard    12/15/1972    Male    Yes
+    And Click Link    Save & Continue
+    And Wait Until Page Contains    How do you want to shop for plans?
+    And Click Link    Select Browse
+    And Wait a Bit
+    And Switch to small view
+    And Click Add to Cart for plan    Classic $1,800-20%
+    And Wait Until Page Contains    1 Plan Added to Cart
+    And Wait a Bit
+    And Click Link    View Cart & Enroll
+    And Wait Until Page Contains    Items In Your Cart
+    And Wait a Bit
+    And Click Link    Enroll Now
+    
+    #Application
+    And Enter details in Prior To Applying page as consumer    Online    No
+    And Wait Until Page Contains    Application Checklist
+    And Wait a Bit
+    And Click Link    Start Application
+    And Enter Primary Applicant details - Consumer    Myself
+    And Pass Family Members page
+    And Pass Primary Care Provider page
+    And Enter details in Prior Coverage page
+    And Enter details in Payment Options page
+    And Pass Verify Application page
+    And Pass Authorized Representative page
+    And Enter details in Submit Application on Behalf of Applicant page
+    Then Wait Confirmation page
+    
+#Consumer completes shopping - Primary
+#
+#    [Documentation]    
+#    ...
+#    ...    *User Type:* Consumer (Anonymous user)
+#    ...
+#    ...    *Applicant combination :* Primary
+#    ...
+#    Given Anonymous User click Find Plan and proceed to Welcome page
+#    When Click Link    Get Started
+#    And Click Link    Skip & Shop Plans
+#    And Enter demographic data for the primary applicant    53910    1    Leonard    12/15/1972    Male    Yes
+#    And Click Link    Save & Continue
+#    And Wait Until Page Contains    How do you want to shop for plans?
+#    
+#    #Helping quiz
+#    And Click Link    Select Guide Me
+##    And Select my costs radio button    Has a lower out-of-pocket cost when I use services and a higher monthly premium
+#    Wait Until Page Contains    Which best describes the amount you are willing to pay each month (premium) for health insurance?
+##    And Click Continue button
+#    And Click Link     Save & Continue
+#    And Wait Until Page Contains    How high of a deductible are you willing to pay before your insurance starts to kick in?
+#    And Click Link     Save & Continue
+#    And Select Co-insurance radio button    Yes
+#    And Click Link     Save & Continue
+#    And Select HSA radio button    Yes
+#    And Click Link     Save & Continue
+#    And Select Usage of Prescription Drugs    On occasion
+#    And Click Continue button
+#    And Select Office Visits frequency     Three times or less
+#    And Click Continue button
+#    And Select Network Access frequency    Very rarely, emergencies only
+#    And Click Continue button
+#    #And Click Find a Doctor button
+#    #And Enter details in Find A Doctor popup    50545
+#    And Wait a Bit
+#    And Click Continue button
+#    And Select Health status    Moderately Healthy
+#    And Click Continue button
+#    Then Page Should Contain    Your Summary
+#    And Click Link    Close & View Your Plans
+#    Then Check that See & Compare plans page is opened
+#    And Switch to small view
+#    ############################################################################
+#    And Select plan(s) small view    3
+#    And Compare plans
+#    And Verify selected plans are displayed
+#    And Delete plan    1
+#    And Switch to full view
+#    And Switch to large view
+#    And Add plan to cart    1
+#    Then Check that added plan is displayed in the cart
+#    And Close cart
+#    And Replace plan    2
+#    Then Check that replaced plan is displayed in the cart
+#    Click Link    View Cart & Enroll
+#    Click Link    Enroll Now
+#    
+    
+#Consumer completes shopping - Primary, Spouse, 2 Children
+#
+#    [Documentation]    
+#    ...
+#    ...    *User Type:* Consumer (Anonymous user)
+#    ...
+#    ...    *Applicant combination :* Primary, Spouse, 2 children
+#    ...
+#    [Tags]    draft
+#    Enter demographic data for the primary applicant    19152    1    Dwayne    01/27/1980    Male    Program to Quit
+#    Click Link    Add Dependent
+#    And Enter demographic data for dependent    1    Sarah    11/17/1984    Spouse    Female    No
+#    Click Link    Add Dependent
+#    And Enter demographic data for dependent    2    Venus    08/31/2004    Child    Female    No
+#    Click Link    Add Dependent
+#    And Enter demographic data for dependent    3    Josh    09/01/2009    Child    Male    No
+#    And Click Link    Save & Continue
+#    Then Check that Subsidy check page is opened
+#    And Click Link    Check Now
+#    Then Check that Subsidy Eligibility check page is opened
+#    And Select Current Health Insurance radio button    Yes
+#    Page Should Contain    Not Likely Eligible
+#    And Click Link    Save & Continue
+#    Then Check that Shopping Method page is opened
+#    And Click Link    Guide Me
+#    Then Check that My Costs page is opened
+#    And Select my costs radio button    Pay less each month
+#    And Select deductible    $2,000
+#    And Select doctor radio button    Yes
+#    And Select feature    In-network coverage across the country
+#    And Select feature    Tax-savings advantage/Health Savings Account (HSA) eligible
+#    And Click Link    Save & Continue
+#    And Select Primary applicant health    Not Healthy
+#    And Select Dependent tab    1
+#    And Select Dependent health    Moderately Healthy
+#    And Select Dependent tab    2
+#    And Select Dependent health    Healthy
+#    And Select Dependent tab    3
+#    And Select Dependent health    Healthy
+#    And Click Link    Save & Continue    
+#    Check that Recommendations page is opened
+#    Then Verify My Costs selection on summary page
+#    And Verify Deductible selection on summary page
+#    And Verify Doctor option selection on summary page
+#    And Verify selected features on a summary page
+#    And Verify Primary applicant health selection on summary page
+#    And Verify dependent health selection on summary page
+#    And Navigate to plans from summary page
+#    Then Check that See & Compare plans page is opened
+#    And Switch to full view
+#    And Add plan to cart    1
+#    Then Check that added plan is displayed in the cart
+#    Click Link    View Cart & Enroll
+#    Click Link    Enroll Now
+
+Consumer completes shopping - Child Only
+    [Documentation]    
+    ...
+    ...    *User Type:* Consumer (Anonymous user)
+    ...
+    ...    *Applicant combination :* Child Only
+    ...
+    [Tags]    shopping    smoke     long    consumer
+    
+    Given Anonymous User click Find Plan and proceed to Welcome page
+    When Click Link    Get Started
+    And Click Link    Skip & Shop Plans
+    And Enter demographic data for the primary applicant    53910    1    Josephine    03/20/2011    Female    No
+    And Click Link    Save & Continue
+    And Wait Until Page Contains    How do you want to shop for plans?
+    And Click Link    Select Browse
+    And Wait a Bit
+    And Switch to small view
+    And Click Add to Cart for plan    Classic $3,000 HDHP
+    And Wait Until Page Contains    1 Plan Added to Cart
+    And Wait a Bit
+    And Click Link    View Cart & Enroll
+    And Wait Until Page Contains    Items In Your Cart
+    And Wait a Bit
+    And Click Link    Enroll Now
+    #Application
+    And Enter details in Prior To Applying page as consumer    Online    No
+    And Wait Until Page Contains    Application Checklist
+    And Wait a Bit
+    And Click Link    Start Application
+    And Enter Primary Applicant details - Consumer    My Child
+    And Pass Family Members page
+#    And Pass Primary Care Provider page
+    And Enter details in Prior Coverage page
+#    And Wait Until Page Contains    Plan Selection
+#    And Verify that Plan is selected    myBlue HSA(SM) 5300
+#    And Click Link    Continue
+#    And Enter details in Current Other Coverage page
+    And Enter details in Payment Options page
+#    And Enter details in Employer Payment Arrangements page
+    And Pass Verify Application page
+    And Pass Authorized Representative page
+    And Enter details in Submit Application on Behalf of Applicant page
+    Then Wait Confirmation page
+
+Test Smoke test - Producer sends proposal and completes shopping - Primary
+    [Documentation]    
+    ...
+    ...    *User Type:* Broker
+    ...
+    ...    *Applicant combination :* Primary
+    ...
+    [Tags]    shopping    smoke     short    agent
+    
+    Given Broker logs in to application
+    When Selects IFP Case
+    And Enter details in Create IFP Case page   53910
+    And Wait Until Page Contains    Case Summary - Individual
+    And Click Link    New Business
+    And Click Link    Traditional Quote
+    And Click Link Get Started
+    And Click Link    Skip & Shop Plans
+    And Enter demographic data for the primary applicant    53910    1    Leonard    12/15/1972    Male    Yes
+    And Click Link    Save & Continue
+    And Wait Until Page Contains    How do you want to shop for plans?
+    And Click Link    Select Browse
+    And Wait a Bit
+    And Switch to small view
+    And Click Add to Quote for plan    Classic $5,500 HDHP
+    And Click Add to Quote for plan    Classic $1,000-20%
+    And Click Add to Quote for plan    Classic $2,000-30%
+    And Finalize Quote
+    And Wait Until Page Contains    Quote Summary
+    And Click Button    Generate Proposal
+    And Generate Proposal
+    And Send & verify Proposal    HTML
+    And Wait a Bit
+    And Selects Plan By Name    Classic $5,500 HDHP
+    And Click Button    Apply
+    And Broker completes Prior To Applying page    Broker Complete Online
+    And Wait Until Page Contains    Application Checklist
+    And Wait a Bit
+    And Click Link    Start Application
+    And Broker Enters Primary Applicant details, selects Coverage for     Myself
+    And Pass Family Members page
+    And Enter details in Prior Coverage page
+    And Enter details in Payment Options page
+    And Wait a Bit
+    And Pass Verify Application page
+    And Enter details in Submit Application on Behalf of Applicant page    Bob    B    Broker
+    Then Wait Confirmation page
+
+Producer completes shopping - Primary
+    [Documentation]    
+    ...
+    ...    *User Type:* Broker
+    ...
+    ...    *Applicant combination :* Primary
+    ...
+    [Tags]    shopping    smoke     long    agent
+    
+    Given Broker logs in to application
+    When Selects IFP Case
+    And Enter details in Create IFP Case page   53910
+    And Wait Until Page Contains    Case Summary - Individual
+    And Click Link    New Business
+    And Click Link    Traditional Quote
+    And Click Link Get Started
+    And Click Link    Skip & Shop Plans
+    And Enter demographic data for the primary applicant    53910    1    Leonard    12/15/1972    Male    Yes
+    And Click Link    Save & Continue
+    And Wait Until Page Contains    How do you want to shop for plans?
+    And Click Link    Select Browse
+    And Wait a Bit
+    And Switch to small view
+    And Click Add to Cart for plan    Classic $3,000 HDHP
+    And Wait Until Page Contains    1 Plan Added to Cart
+    And Wait a Bit
+    And Click Link    View Cart & Enroll
+    And Wait Until Page Contains    Items In Your Cart
+    And Wait a Bit
+    And Click Dental to plan    Low
+    And Click Link    Enroll Now
+    And Broker completes Prior To Applying page    Broker Complete Online
+    And Wait Until Page Contains    Application Checklist
+    And Wait a Bit
+    And Click Link    Start Application
+    And Broker Enters Primary Applicant details, selects Coverage for     Myself
+    And Pass Family Members page
+    And Enter details in Prior Coverage page
+    And Enter details in Payment Options page
+    And Wait a Bit
+    And Pass Verify Application page
+    And Enter details in Submit Application on Behalf of Applicant page    Bob    B    Broker
+    Then Wait Confirmation page
+

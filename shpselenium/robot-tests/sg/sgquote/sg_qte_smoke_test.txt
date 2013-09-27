@@ -1,0 +1,64 @@
+*** Settings ***
+Documentation     SG - Quote - Smoke Test
+Suite Setup       Setup
+Suite Teardown    Teardown
+Test Setup        Initialize Variables
+Test Teardown     Teardown of Test
+Resource          ../../shp_sg_keywords.txt
+
+*** Test Cases ***
+Test Smoke test Quote from case - Broker
+    [Documentation]    *SG - Quote - Smoke Test: Broker*
+    ...
+    ...    *Smoke Test:*   Smoke test for SG Quote.
+    ...
+    ...    *User Type:* Broker
+    ...
+    [Tags]    sg    quote    smoke     short
+    Given Broker logs in to application
+    When Selects SG Case
+    And Wait a Bit
+    And Enter details in Create Small Group Case page
+    And Wait Until Page Contains    Case Summary - Small Group
+    And Click Link    New Business
+    And Click Button    SG Quote
+    And Enter details in Quote Profile page for case    2
+    And Enter details in Census page for Employees    2
+    And Select Plan By Name    Tradition $500-10%
+    And Select Plan By Name    Independence $1,000-20%
+    And Select Plan By Name    Independence $1,500-30%
+    And Click Button    Add Plans
+    And Click Button    Continue
+    And Pass Rates page
+    And Enter details in Generate Proposal page
+    Then Page Should Contain    Proposal generation and delivery completed.
+    And Click OK in Popup
+    And Verify Title    Security Health Plan - Quote Summary
+    Then User Logs out from the application
+
+Test Smoke test Quote - Broker
+    [Documentation]    *SG - Quote - Smoke Test: Broker*
+    ...
+    ...    *Smoke Test:*   Smoke test for SG Quote.
+    ...
+    ...    *User Type:* Broker
+    ...
+    [Tags]    sg    quote    smoke     long
+    Given Broker logs in to application
+    When Selects SG Quote
+    And Enter details in Enrollment Set-Up page    2
+    And Enter details in Census page for Employees    2
+    And Select Plan By Name    Tradition $500-10%
+    And Select Plan By Name    Independence $1,000-20%
+    And Select Dental Rider For Plan    Independence $1,000-20%    High
+    And Select Plan By Name    Independence $1,500-30%
+    And Select Dental Rider For Plan    Independence $1,500-30%    Low
+    And Click Button    Add Plans
+    And Click Button    Continue
+    And Pass Rates page
+    And Enter details in Generate Proposal page
+    Then Page Should Contain    Proposal generation and delivery completed.
+    And Click OK in Popup
+    And Verify Title    Security Health Plan - Quote Summary
+    Then User Logs out from the application
+

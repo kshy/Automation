@@ -1,0 +1,1672 @@
+﻿*** Settings ***
+Library           String
+Library           OperatingSystem
+Library           Selenium2Library    timeout=${SELENIUM_TIMEOUT}    implicit_wait=${SELENIUM_IMPLICIT_WAIT}
+Library           BuiltIn
+Library           Collections
+
+*** Variables ***
+
+@{incomes}    $45,960    $62,040    $78,120    $94,200    $110,280    $126,360    $142,440    $158,520    $174,600    $190,680
+@{relations}    Choose a relationship    Spouse    Child
+@{genders}    Choose   Male   Female
+@{tobacco}    Choose    No    Yes    Program to Quit
+
+    
+*** Keywords ***
+
+####################### Demograpchics keywords ################
+
+Get site
+    ${url}=    Set Variable    ${HOST}${CONTEXT_ROOT}/exemplar/Portal.action
+    Log    URL:${url}    WARN
+    [Return]    ${url}
+
+Setup
+    ${site}=    Get Site
+    Set Global Variable    ${site}
+    Set Selenium Speed    ${SELENIUM_SPEED}
+    Open Browser    ${site}    browser=${BROWSER}    remote_url=${REMOTE_URL}    desired_capabilities=${DCAPS}
+    Maximize Browser Window
+    Wait Until Page Contains    For people looking    ${SELENIUM_TIMEOUT}    Error on main page
+
+Setup of Test
+    Initialize Variables
+    ${isPortalPagedisplayed}=    Get Matching Xpath Count     //a[contains(text(),'Returning User Login')]
+    Run Keyword If     '${isPortalPagedisplayed}'=='0'    Go to the Portal page
+
+Go to the Portal page
+    Go To    ${site}
+    Wait Until Page Contains    For people looking    ${SELENIUM_TIMEOUT}    Error on main page
+
+Anonymous User click Find Plan and proceed to Welcome page
+    Click Link    fCoverage
+    Wait Until Page Contains    Welcome    ${SELENIUM_TIMEOUT}    Error on Welcome page
+    Click Link    Find Plan
+    Sleep    5
+    Wait Until Page Contains Element    xpath=//a[contains(text(),'Get Started')]   ${SELENIUM_TIMEOUT}
+
+    
+Generate Date
+    ${yyyy}    ${mm}    ${dd}=    Get Time    year month day
+    ${temp_date}=    Catenate    ${mm}${dd}${yyyy}
+    [Return]    ${temp_date}
+    
+Initialize Variables
+    ${yyyy}    ${mm}    ${dd}    ${hh}    ${min}    ${ss}=    Get Time    year month day hour min sec
+    ${zipCode}=    Set Variable    50545
+    ${randStr}=    Generate Random String    6    [LETTERS]
+    ${randNbr}=    Generate Random String    6    [NUMBERS]
+    ${SSNcode}=    Generate Random String    9    [NUMBERS]
+    ${ifpCaseName}=    Catenate    IFPCaseAuto${yyyy}${mm}${dd}${hh}${min}${ss}
+    ${userFName}=    Catenate    FN${randStr}
+    ${userLName}=    Catenate    LN${randStr}
+    ${spouseFName}=    Catenate    SFN${randStr}
+    ${spouseLName}=    Catenate    SLN${randStr}
+    ${child1FName}=    Catenate    ConeFN${randStr}    
+    ${child1LName}=    Catenate    ConeLN${randStr}
+    ${child2LName}=    Catenate    CtwoLN${randStr}
+    ${fname2}=    Generate Random String    6    [UPPER]
+    ${fname3}=    Generate Random String    7    [UPPER]
+    ${selected_features}    Create List
+    ${dep_names}    Create List
+    ${dep_dobs}    Create List
+    ${dep_genders}    Create List
+    ${consumerBirthDate}=    Set Variable    02141974
+    ${email}=    Set Variable    tvolvk.test@gmail.com
+    ${emailPwd}=    Set Variable    Secur1ty_Auto
+    Set Test Variable    ${ifpCaseName}
+    Set Test Variable    ${zipCode}
+    Set Test Variable    ${randNbr}
+    Set Test Variable    ${SSNcode}
+    Set Suite Variable    ${fname2}
+    Set Suite Variable    ${fname3}
+    Set Suite Variable    ${selected_features}
+    Set Suite Variable    ${dep_names}
+    Set Suite Variable    ${dep_dobs}
+    Set Suite Variable    ${dep_genders}    
+    Set Test Variable    ${userFName}
+    Set Test Variable    ${userLName}
+    Set Test Variable    ${spouseFName}
+    Set Test Variable    ${spouseLName}
+    Set Test Variable    ${child1FName}
+    Set Test Variable    ${child1LName}
+    Set Test Variable    ${spouseLName}
+    Set Test Variable    ${child1LName}
+    Set Test Variable    ${email}
+    Set Test Variable    ${emailPwd}
+    Set Test Variable    ${consumerBirthDate}
+
+#Enter demographic data for the primary applicant
+#    [Arguments]    ${zip}    ${county_index}    ${fname}    ${date}    ${gender}    ${tobacco}
+#    Input Text    name=zipCode    ${zip}
+#    Sleep    2
+#    Focus    //td[@data-id='0']/*[@name='name.first']
+#    Input Text    xpath=//td[@data-id='0']/*[@name='name.first']    ${fname}
+#    Sleep    2
+#    Input Text    xpath=//td[@data-id='0']/*[@name='birthDate']    ${date}
+#    Element Should Be Disabled    xpath=//td[@data-id='0']/*[@name='memberRelationship']
+#    Select From List    xpath=//td[@data-id='0']/*[@name='gender']    ${gender}
+#    Select From List    xpath=//td[@data-id='0']/*[@name='isSmoker']    ${tobacco}
+#    Set Global Variable    ${zipCode}    ${zip}
+#    Set Global Variable    ${userFName}    ${fname}
+#    Set Global Variable    ${selfDOB}    ${date}
+#    Set Global Variable    ${selfGender}    ${gender}
+#    Set Global Variable    ${selfTobacco}    ${tobacco}
+
+Enter demographic data for the primary applicant
+    [Arguments]    ${zip}    ${county_index}    ${fname}    ${date}    ${gender}    ${tobacco}
+    Input Text    name=zipCode    ${zip}
+    Sleep    2
+    Focus    //*[@name='name.first']
+    Input Text    xpath=//*[@name='name.first']    ${fname}
+    Sleep    2
+    Input Text    xpath=//*[@name='birthDate']    ${date}
+    Element Should Be Disabled    xpath=//*[@name='memberRelationship']
+    Select From List    xpath=//*[@name='gender']    ${gender}
+    Select From List    xpath=//*[@name='isSmoker']    ${tobacco}
+    Set Global Variable    ${zipCode}    ${zip}
+    Set Global Variable    ${userFName}    ${fname}
+    Set Global Variable    ${selfDOB}    ${date}
+    Set Global Variable    ${selfGender}    ${gender}
+    Set Global Variable    ${selfTobacco}    ${tobacco}
+
+
+Enter details in Create IFP Case page
+    [Arguments]    ${zip}
+    Wait Until Page Contains Element    name=caseProfileData.caseName    ${SELENIUM_TIMEOUT}    Create IFP Case page wasn't displayed or wrong page is displayed
+    Wait a Bit
+    Input Text    name=caseProfileData.caseName    ${ifpCaseName}
+    Select From List    caseProfileData.caseState    WI
+    Input Text    name=caseProfileData.caseZip    ${zip}
+    Input Text    name=caseProfileData.contactFirstName    ${userFName}
+    Input Text    name=caseProfileData.contactLastName     ${userLName}
+    Input Text    name=caseProfileData.contactEmailAddress    ${email}
+    Click Button    Continue
+
+#Verify list of counties for PA state
+#    @{county_list} =    Get List Items    xpath county
+#    Should Be True    '@{county_list}' == '@{PA_counties}'    County lists don't match
+#
+#Verify items in Gender dropdown menu
+#    ${genders} =    Create List    @{genders}
+#    @{gender_list} =    Get List Items    xpath=//select[@name="gender"]
+#    ${gender_list} =    Create List    @{gender_list}
+#    Lists Should Be Equal    ${gender_list}    ${genders}
+#    
+#Verify items in Relationship dropdown menu
+#    ${relations} =    Create List    @{relations}
+#    @{relations_list} =    Get List Items    xpath=(//select[@name="memberRelationship"])[2]
+#    ${relations_list} =    Create List    @{relations_list}
+#    Lists Should Be Equal    ${relations_list}    ${relations}    Relations lists don't match
+#    
+#Verify items in Tobacco dropdown menu
+#    ${tobacco} =    Create List    @{tobacco}
+#    @{tobacco_list} =    Get List Items    xpath=//select[@name="isSmoker"]
+#    ${tobacco_list} =    Create List    @{tobacco_list}
+#    Lists Should Be Equal    ${tobacco_list}    ${tobacco}    Relations lists don't match
+#
+#Check Help Text on demographics screen
+#    Check text in Looking for coverage box
+##    Page Should Contain    Are you shopping for a Child Only plan?
+#    Page Should Contain    Are you or any of your dependents Native American or Native Alaskan?
+#    Check the tool tip for Tobacco dropdown
+#    Check the tool tip for Child Only dropdown    
+#    
+#Check text in Looking for coverage box
+#    Page Should Contain    Looking for coverage sooner?
+##    Page Should Contain    You will need a valid reason if you want to enroll in a plan outside the open enrollment period. Contact an IBC representative today to help you with your enrollment questions.
+#    Page Should Contain    1­-888­-475­-6206
+#    
+#Check that error messages are dislayed if user tries to proceed with empty fields
+#    Enter demographic data for the primary applicant    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Zip code is a required field    ${SELENIUM_TIMEOUT}    error message if zip code is empty has not displayed
+#    Wait Until Page Contains    First Name is a required field    ${SELENIUM_TIMEOUT}    error message if first name is empty has not displayed
+#    Wait Until Page Contains    Birth date is a required field    ${SELENIUM_TIMEOUT}    error message if birthdate is empty has not displayed
+#    Wait Until Page Contains    Gender is a required field    ${SELENIUM_TIMEOUT}    error message if gender is not selected has not displayed
+#    Wait Until Page Contains    Tobacco is a required field    ${SELENIUM_TIMEOUT}    error message if tobacco is not selected has not displayed
+#
+#Check default value in Relations dropdown
+#    List Selection Should Be    xpath=//td[@data-id='0']/*[@name='memberRelationship']    Self
+#    
+#Check that error message is dislayed if user tries to proceed with invalid zip code
+#    Enter demographic data for the primary applicant    9951435    ${county_index}    ${fname}    ${date}    ${gender}    ${tobacco}
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Zip code must be no longer than 5 characters    ${SELENIUM_TIMEOUT}    error message if zip code is invalid has not displayed
+
+#Check that error message is dislayed if user tries to proceed with non_PA zip code
+#    Enter demographic data for the primary applicant    90210    ${county_index}    ${fname}    ${date}    ${gender}    ${tobacco}
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    TBD    ${SELENIUM_TIMEOUT}    error mesage if zip code is invalid has not displayed
+#
+#Check that error message is dislayed if user tries to proceed with alphabetical zip code
+#    Enter demographic data for the primary applicant    Hgeau    ${county_index}    Gerard    01021980    Male    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Zip code must be numeric    ${SELENIUM_TIMEOUT}    error message if zip code is invalid has not displayed
+#
+#Check that error message is dislayed if user tries to proceed without selecting county
+#    Enter demographic data for the primary applicant    19118    ${EMPTY}    Gerard    01021980    Male    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    County is a required field    ${SELENIUM_TIMEOUT}    error message if county wasn't selected has not displayed
+#
+#Check that error message is dislayed if user tries to proceed with numeric/special characters in first name
+#    Enter demographic data for the primary applicant    19130    ${EMPTY}    76&*^%549    01021980    Male    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    First Name may only contain alpha characters (A-Z,-,' or spaces)    ${SELENIUM_TIMEOUT}    error message if first name is empty has not displayed
+#
+#Check that error message is dislayed if user tries to proceed with future birthdate
+#    Enter demographic data for the primary applicant    19130    1    Gerard    04/27/2014    Male    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Birth date must not be in the future    ${SELENIUM_TIMEOUT}    error message for future birthdate has not displayed
+#    
+#Check that error message is dislayed if user tries to proceed with incorrect birthdate format
+#    Enter demographic data for the primary applicant    19130    1    Gerard    29/07/1983    Male    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Birth date must be a valid date in the format MM/DD/YYYY    ${SELENIUM_TIMEOUT}    error message for invalid birthdate has not displayed
+#    
+#Check that error message is dislayed if user tries to proceed with invalid date
+#    Enter demographic data for the primary applicant    19154    1    Jillian    10/83/0025    Female    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Birth date must be a valid date in the format MM/DD/YYYY    ${SELENIUM_TIMEOUT}    error message for invalid birthdate has not displayed
+#
+#Check that error message is dislayed if user tries to proceed if age is less than 21
+#    Enter demographic data for the primary applicant    19154    1    Jillian    10/28/1994    Female    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Primary applicant can not be 21 or younger.    ${SELENIUM_TIMEOUT}    error message if birthdate is less than 21 has not displayed
+#
+#Check that Tobacco dropdown is disabled if applicant is younger than 18
+#    Enter demographic data for the primary applicant    19154    1    Jillian    10/28/1999    Female    No    
+#    Focus    xpath=//td[@data-id='0']/*[@name='name.first']
+#    Element Should Be Disabled    xpath=//td[@data-id='0']/*[@name='isSmoker']
+#
+#Check that Tobacco dropdown is enabled
+#    Focus    xpath=//td[@data-id='0']/*[@name='name.first']
+#    Element Should Be Enabled    xpath=//td[@data-id='0']/*[@name='isSmoker']
+#    
+#Check the tool tip for Tobacco dropdown
+#    Page Should Contain Element    xpath=//span[@title="Have you used a tobacco product on average four or more times per week within the past 6 months, other than for religious or ceremonial use?"]
+#
+#####################Add Dependent Keywords #################    
+#
+#Click Add Dependent button
+#    Click Link    Add Dependent
+    
+Enter demographic data for dependent
+    [Arguments]    ${dep_number}    ${fname2}    ${date2}    ${relation}    ${gender}    ${tobacco}
+    Wait Until Page Contains Element    xpath=//td[@data-id='${dep_number}']    ${SELENIUM_TIMEOUT}    Dependent was not added
+    Input Text    xpath=//td[@data-id='${dep_number}']/*[@name='name.first']    ${fname2}
+    Select From List    xpath=//td[@data-id='${dep_number}']/*[@name='memberRelationship']    ${relation}
+    Input Text    xpath=//td[@data-id='${dep_number}']/*[@name='birthDate']    ${date2}
+    Select From List    xpath=//td[@data-id='${dep_number}']/*[@name='gender']    ${gender}
+    Select From List    xpath=//td[@data-id='${dep_number}']/*[@name='isSmoker']    ${tobacco}
+    Append To List    ${dep_names}    ${fname2}
+    Append To List    ${dep_dobs}    ${date2}
+    Append To List    ${dep_genders}    ${gender}
+
+Remove Dependent
+    [Arguments]    ${dep_number}
+    Click Element    xpath=.//*[@id='remove']/a[@data-id='${dep_number}']
+    
+#Add dependent and try to proceed without populating dependent info
+#    Click Add Dependent button
+#    Enter demographic data for dependent    1    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Member relationship is a required field    ${SELENIUM_TIMEOUT}    error message for not selcted dependent's relation has not displayed
+#    Wait Until Page Contains    First Name is a required field    ${SELENIUM_TIMEOUT}    error message if first name is empty has not displayed
+#    Wait Until Page Contains    Birth date is a required field    ${SELENIUM_TIMEOUT}    error message if birthdate is empty has not displayed
+#    Wait Until Page Contains    Gender is a required field    ${SELENIUM_TIMEOUT}    error message if gender is not selected has not displayed
+#    Wait Until Page Contains    Tobacco is a required field    ${SELENIUM_TIMEOUT}    error message if tobacco is not selected has not displayed
+#
+#Check that error message for dependent is dislayed if user tries to proceed with numeric/special characters in first name
+#    Enter demographic data for the primary applicant    1    76&*^%549    01021980    Spouse    Male    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    First Name may only contain alpha characters (A-Z,-,' or spaces)    ${SELENIUM_TIMEOUT}    error message if first name is empty has not displayed
+#
+#Check that error message for dependent is dislayed if user tries to proceed with future birthdate
+#    Enter demographic data for the primary applicant    1    Gerard    04/27/2014    Spouse    Male    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Birth date must not be in the future    ${SELENIUM_TIMEOUT}    error message for future birthdate has not displayed
+#    
+#Check that error message for dependent is dislayed if user tries to proceed with incorrect birthdate format
+#    Enter demographic data for the primary applicant    1    Gerard    29/07/1983    Spouse    Male    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Birth date must be a valid date in the format MM/DD/YYYY    ${SELENIUM_TIMEOUT}    error message for invalid birthdate has not displayed
+#    
+#Check that error message for dependent is dislayed if user tries to proceed with invalid date
+#    Enter demographic data for the primary applicant    1    Jillian    10/83/0025    Spouse    Male    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Birth date must be a valid date in the format MM/DD/YYYY    ${SELENIUM_TIMEOUT}    error message for invalid birthdate has not displayed    
+#
+#Check that error message for child is dislayed if user tries to proceed with child older than 26
+#    Enter demographic data for the primary applicant    1    Jillian    10/28/1975    Child    Male    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Child applicant can't be older than 26years old.    ${SELENIUM_TIMEOUT}    error message for child dependent who's older than 26 has not displayed    
+#
+#Check that error message is dislayed if user tries to proceed with spouse younger than 16
+#    Enter demographic data for the primary applicant    1    Jillian    10/28/2000    Spouse    Male    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Spouse can not be younger than 16 years old.    ${SELENIUM_TIMEOUT}    error message for spouse younger than 16 has not displayed    
+#
+#Check that error message is dislayed if user tries to proceed with spouse same sex
+#    Enter demographic data for the primary applicant    1    Jillian    10/28/1975    Spouse    Female    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Spouse can not be the same sex as primary applicant.    ${SELENIUM_TIMEOUT}    error message for spouse same sex has not displayed    
+#
+#Check that Tobacco dropdown is disabled if dependent is younger than 18
+#    Enter demographic data for the primary applicant    1    Jillian    10/28/2000    Spouse    Male    No
+#    Focus    xpath=//td[@data-id='0']/*[@name='name.first']
+#    Element Should Be Disabled    xpath=//td[@data-id='${dep_number}']/*[@name='isSmoker']
+    
+#################### Child Only Keywords #################
+
+Select Child Only option
+    Select From List    childOnlyField    Yes
+
+#Check relations dropdown when child only is selected
+#    List Selection Should Be    xpath=//td[@data-id='0']/*[@name='memberRelationship']    Self
+#    Element Should Be Disabled    xpath=//td[@data-id='0']/*[@name='memberRelationship']
+#    
+#Check the tool tip for Child Only dropdown
+#    Page Should Contain Element    xpath=//span[@title="Children do not need to be covered under a parent's plan. If it is a child only policy, each child must enroll in their own coverage. Multiple children cannot be covered under one child only plan."]
+#
+#Check that error message is dislayed if child only age is greater than 21
+#    Enter demographic data for the primary applicant    19130    ${county_index}    Gerard    01021980    Male    No
+#    Click Link    Save & Continue
+#    Wait Until Page Contains    Child must be 21 or younger for a child only application    ${SELENIUM_TIMEOUT}    error mesage if zip code is invalid has not displayed
+#
+#Check that Add Dependent button and dependents are not displayed when Child Only is selected
+#    Page Should Not Contain Element    xpath=//a[text()='Add Dependent']
+#    Page Should Not Contain Element    xpath=//td[@data-id='1']
+
+Click Continue button
+    Click Element    xpath=//a[contains(text(),'Continue >')]
+
+Click Find a Doctor link
+    Click Element    xpath=(//a[contains(text(),'Find a Doctor')])[2]
+    
+#Click See & Compare Plans link
+#    Click Link    See & Compare Plans
+#    
+#Click Clear link on
+#    [Arguments]    ${page}
+#    Click Link    Clear
+#    Run Keyword If    '${page}' == 'applicant health tab'    
+#    Run Keyword If    '${page}' == 'dependent health tab'
+#    Run Keyword If    '${page}' == 'my costs tab'
+#    Run Keyword If    '${page}' == 'deductible tab'
+#    Run Keyword If    '${page}' == 'doctor tab'
+#    Run Keyword If    '${page}' == 'plan features tab'
+#
+#Click Previous link on
+#    [Arguments]    ${page}
+#    Click Link    Previous
+#    Run Keyword If    '${page}' == 'applicant health tab'    Wait Until Page Contains    See what plans will really cost you per calendar year.    ${SELENIUM_TIMEOUT}
+#    Run Keyword If    '${page}' == 'dependent health tab'    Wait Until Page Contains Element    xpath=//li[@data-id='0']//span[Text()='${fname}']    ${SELENIUM_TIMEOUT}
+#    Run Keyword If    '${page}' == 'my costs tab'
+#    Run Keyword If    '${page}' == 'deductible tab'
+#    Run Keyword If    '${page}' == 'doctor tab'
+#    Run Keyword If    '${page}' == 'plan features tab'
+#
+#Click Skip Question link on
+#    [Arguments]    ${page}
+#    Click Link    Skip Question
+#    Run Keyword If    '${page}' == 'applicant health tab'    Set Suite Variable    ${current_health}    ${EMPTY}
+#    Run Keyword If    '${page}' == 'dependent health tab'    Set Suite Variable    ${d1_current_health}    ${EMPTY}
+#    Run Keyword If    '${page}' == 'my costs tab'
+#    Run Keyword If    '${page}' == 'deductible tab'
+#    Run Keyword If    '${page}' == 'doctor tab'
+#    Run Keyword If    '${page}' == 'plan features tab'
+#
+#Skip to plans
+#    Click Link    Skip To Plans
+#    Wait Until Page Contains    See & Compare Plans    ${SELENIUM_TIMEOUT}
+    
+#################### Build Your Profile Keywords #################
+#
+#Expand Build Your Profile menu
+#    Mouse Over    xpath=//a[@class='_show']
+#    Sleep    1
+#
+#Navigate to Demographics from Build Your Profile menu
+#    Expand Build Your Profile menu
+#    Click Link    Demographics
+#    Capture Page Screenshot    Demographics.jpg
+#
+#Navigate to Subsidy Check from Build Your Profile menu
+#    Expand Build Your Profile menu
+#    Click Link    Subsidy
+#    Capture Page Screenshot    Subsidy.jpg
+#    
+#Navigate to Quick Eligibility Check from Build Your Profile menu
+#    Expand Build Your Profile menu
+#    Click Link    Quick Eligibility Check
+#    Capture Page Screenshot    Eligibility.jpg
+#
+#Navigate to Shopping Method from Build Your Profile menu
+#    Expand Build Your Profile menu
+#    Click Link    Shopping Method
+#    Capture Page Screenshot    Method.jpg
+#
+#Navigate to Recommendations from Build Your Profile menu
+#    Expand Build Your Profile menu
+#    Click Link    Recommendations
+#    Capture Page Screenshot    Recommendations.jpg    
+#
+#Navigate to Your Preferences from Build Your Profile menu
+#    Expand Build Your Profile menu
+#    Click Link    Your Preferences
+#    Capture Page Screenshot    Preferences.jpg
+#
+#Navigate to My Costs from Build Your Profile menu
+#    Expand Build Your Profile menu
+##    Click Element    xpath=//div[@class='dataGroup']//a[contains(text(),'My Costs')]
+#    Execute Javascript    $("a[data-id='Q1']").click()
+#    Capture Page Screenshot    Costs.jpg
+#
+#Navigate to Deductible from Build Your Profile menu
+#    Expand Build Your Profile menu
+##    Click Element    xpath=//div[@class='dataGroup']//a[contains(text(),'Deductible')]
+#    Execute Javascript    $("a[data-id='Q2']").click()
+#    Capture Page Screenshot    Deductible.jpg
+#
+#Navigate to Doctor from Build Your Profile menu
+#    Expand Build Your Profile menu
+##    Click Element    xpath=//div[@class='dataGroup']//a[contains(text(),'Doctor')]
+#    Execute Javascript    $("a[data-id='Q7']").click()
+#    Capture Page Screenshot    Doctor.jpg
+#    
+#Navigate to Plan Features from Build Your Profile menu
+#    Expand Build Your Profile menu
+##    Click Element    xpath=//div[@class='dataGroup']//a[contains(text(),'Plan Features')]
+#    Execute Javascript    $("a[data-id='Q4']").click()
+#    Capture Page Screenshot    Features.jpg
+#
+#Navigate to Estimate Your Healthcare Costs from Build Your Profile menu
+#    Expand Build Your Profile menu
+#    Click Link    Estimate Your Healthcare Costs    
+#    Capture Page Screenshot    Healthcare.jpg
+##    Wait Until Page Contains    See what plans will really cost you per calendar year.    ${SELENIUM_TIMEOUT}
+#
+#################### Checking current page ############################
+
+Check that Subsidy check page is opened
+    Wait Until Page Contains    You may be eligible    ${SELENIUM_TIMEOUT}
+    
+Check that Subsidy Eligibility check page is opened
+    Wait Until Page Contains    Do you currently have health insurance    ${SELENIUM_TIMEOUT}
+    
+#Check that Shopping Method page is opened
+#    Wait Until Page Contains    How do you want to shop for plans?    ${SELENIUM_TIMEOUT}
+
+#Check that My Costs page is opened
+#    Wait Until Page Contains    I want a health plan that....    ${SELENIUM_TIMEOUT}
+
+Check that Deductible page is opened
+    Wait Until Page Contains    How high of a deductible    ${SELENIUM_TIMEOUT}
+    
+#Check that Prescription Drugs page is opened
+#    Wait Until Page Contains    Usage of prescription drugs....    ${SELENIUM_TIMEOUT}
+    
+#Check that Office Visit Page is opened
+#    Wait Until Page Contains    In a year, do each of your family members visit the doctor   ${SELENIUM_TIMEOUT}
+    
+Check that Doctor Visits page is opened
+    Wait Until Page Contains    Are you interested in these plans?     ${SELENIUM_TIMEOUT}
+    
+Check that Plan Features page is opened
+    Wait Until Page Contains    What two health plan features are most important to you?    ${SELENIUM_TIMEOUT}
+    
+Check that Estimate Your Healthcare Costs page is opened
+    Wait Until Page Contains    How would you describe this person's health?    ${SELENIUM_TIMEOUT}
+    
+Check that Customize Health page is opened for
+    [Arguments]    ${apllicant}
+    ${name}=    Get From List    ${dep_names}    1
+    Run Keyword If    '${apllicant}'=='self'    Wait Until Page Contains    Customize ${fname}'s Health Profile    ${SELENIUM_TIMEOUT}
+    Run Keyword If    '${apllicant}'=='dependent'    Wait Until Page Contains    Customize ${name}'s Health Profile    ${SELENIUM_TIMEOUT}
+        
+Check that Recommendations page is opened
+    Wait Until Page Contains    Your Summary    ${SELENIUM_TIMEOUT}
+    
+Check that See & Compare plans page is opened
+    Wait Until Page Contains    See & Compare    ${SELENIUM_TIMEOUT}
+    
+#################### Subsidy keywords ############################
+#
+#Return to subsidy check page
+#    Navigate to Subsidy Check from Build Your Profile menu
+#    Click Link    Check Now
+#
+#Verify tooltip text for Current Health Insurance radio button
+#    Page Should Contain Element    xpath=//span[@title='If you or your spouse have access to health insurance through an employer, and your contribution to the plan exceeds 9.5% of your income you may still be eligible for assistance. To get a more accurate result, apply at the Federally Facilitated Marketplace.']
+#    
+#Verify tooltip text for dropdown menu
+#    Page Should Contain Element    xpath=//span[@title='There may be more people in your household than the number of members you are insuring. Please enter the total number of people in your household.']
+#    
+#Verify tooltip text for Household Income radio button
+#    Page Should Contain Element    xpath=//span[@title='The calculation to determine the income amount uses the adjusted modified gross income, the current year 400% Federal Poverty Guidelines and the corresponding household size.']
+#
+#Verify tooltip text for shop subsidy eligible plans button
+#    Page Should Contain Element    xpath=//span[@title='']
+#        
+#Verify tooltip text for shop non-subsidy eligible plans button
+#    Page Should Contain Element    xpath=//span[@title='']
+    
+Select Current Health Insurance radio button
+    [Arguments]    ${rb1}    
+    Wait Until Page Contains    Do you currently have health insurance    ${SELENIUM_TIMEOUT}    Subsidy Eligibility Check page has errors
+    Run Keyword If    '${rb1}' == 'No'    Click Element    id=_assistanceEligibility_0
+    Run Keyword If    '${rb1}' == 'Yes'    Click Element    id=_assistanceEligibility_1
+
+Select Co-insurance radio button
+    [Arguments]    ${rb1}
+    Wait Until Page Contains    Would you prefer a plan where..    ${SELENIUM_TIMEOUT}    Subsidy Eligibility Check page has errors
+    Select Radio Button    answers     ${rb1}
+
+Select HSA radio button
+    [Arguments]    ${rb1}
+    Wait Until Page Contains    Do you want a health plan that works with a Health Savings Account (HSA)?    ${SELENIUM_TIMEOUT}    Subsidy Eligibility Check page has errors
+    Select Radio Button    answers     ${rb1}
+
+Select number of people
+    [Arguments]    ${people}       
+    Wait Until Page Contains    How many people are in your household?    ${SELENIUM_TIMEOUT}    Subsidy Eligibility Check page has errors after selecting No
+    Select From List    _householdMakeup    ${people}
+    
+Select Household Income radio button
+    [Arguments]    ${rb2}    
+    Wait Until Page Contains    Is your household income    ${SELENIUM_TIMEOUT}    Subsidy Eligibility Check page has errors
+    Sleep    5
+    Run Keyword If    '${rb2}' == 'No'    Click Element    id=_householdIncome_0
+    Run Keyword If    '${rb2}' == 'Yes'    Click Element    id=_householdIncome_1
+
+#Verify household incomes
+#    @{household} =    Get List Items    _householdMakeup
+#    [Return]    @{household}
+#    :FOR    ${i}    IN RANGE    10
+#    \  ${j}=    Convert To String    ${i}
+#    \  Select From List By Index    _householdMakeup    ${j}
+#    \  Page Should Contain    @{incomes}[${i}]
+#
+#Check Help
+#    Click Link    Click here for help
+#    Page Should Contain Element    id=ui-id-2
+#    Capture Page Screenshot    subsidy help.jpg
+#    Click Element    xpath=//button[@title='close']
+##    Click Button    close    
+#    
+Skip subsidy check
+    Check that Subsidy check page is opened
+    And Click Link    Shop For Plans
+    Check that Shopping Method page is opened
+
+#################### Shopping Method keys ############################    
+    
+Click Browse for plans button
+    Click Link    Browse
+
+#Check help text on shopping method screen
+#    Page Should Contain Element    xpath=//div[text()="Guide Me"]
+#    Page Should Contain    We take you through a simple set of questions based on your life stage, healthcare needs, and what you think you're looking for. The more questions you answer; the better the results.
+#    Page Should Contain    You may skip to plans at any time. Why? Will refine to 1-3 targeted plan results. Best for: New Enrollees. Tight Timeline. Life Changes.
+#    Page Should Contain Element    xpath=//div[text()="Browse"]
+#    Page Should Contain    Browse for all available plans. Best for: When Evaluating options.
+    
+#################### Preferences keys ############################
+
+Select my costs radio button
+    [Arguments]    ${my_costs}
+    Set Suite Variable    ${current_costs}    ${my_costs}
+    Wait Until Page Contains    I want a health plan that...    ${SELENIUM_TIMEOUT}
+    Run Keyword If    '${my_costs}'== 'Has a lower out-of-pocket cost when I use services and a higher monthly premium'    Click Element    id=Lower_OOP_Higher_Prem
+    Run Keyword If    '${my_costs}'== 'Has a lower monthly premium, but my out-of-pocket costs may be higher when I use services'    Click Element    id=Lower_OOP_Higher_Prem
+
+#Check names of radio buttons on My Costs screen
+#    Page Should Contain    I prefer to pay less each month knowing I may pay more out of my own pocket later
+#    Page Should Contain    I am willing to pay more each month so I can pay less out of my own pocket later
+#    Page Should Contain    No Preference
+#
+#Check Help Text on My Costs screen
+#    Page Should Contain    Pay now or later…what’s the difference?
+#    Page Should Contain    A plan with a low monthly rate and higher out-of-pocket costs may save you money if you’re healthy and only see the doctor once in awhile. But if you see the doctor a lot, have an ongoing medical condition, or take regular prescriptions, it may save you money to pay a higher monthly rate in exchange for lower out-of-pocket costs. And remember, you pay your monthly rate each month, but you only pay out-of-pocket costs when you need health care.
+#
+#Check that radio buttons are deselected
+#    Page Should Not Contain Element    xpath=//input[@checked=""]
+#
+#Check that no my costs options are displayed in results
+#    Page Should Not Contain    pay more each month
+#    Page Should Not Contain    pay less each month
+#    Page Should Not Contain    No Preference
+    
+Select deductible
+    [Arguments]    ${deductible}
+    Set Suite Variable    ${current_deductible}    ${deductible}    
+    Check that Deductible page is opened
+    Run Keyword If    '${deductible}'== 'No Preference'    Moving slider    0.00
+    Run Keyword If    '${deductible}'== '$0'    Moving slider    16.67
+    Run Keyword If    '${deductible}'== '$1,000'    Moving slider    33.33
+    Run Keyword If    '${deductible}'== '$2,000'    Moving slider    50.00
+    Run Keyword If    '${deductible}'== '$3,000'    Moving slider    66.67
+    Run Keyword If    '${deductible}'== '$4,000'    Moving slider    83.33
+    Run Keyword If    '${deductible}'== '$6,000'    Moving slider    100.00
+    Click Link    Save & Continue
+
+Moving slider
+    [Arguments]    ${slide_to}
+    Mouse Down    id=handle_questionSlider
+    Mouse Up    xpath=//*[@style='left:${slide_to}%']
+    
+Select Usage of Prescription Drugs
+    [Arguments]    ${frequency}
+    #Set Suite Variable    ${current_deductible}    ${deductible}    
+    Wait Until Page Contains    Usage of prescription drugs...    ${SELENIUM_TIMEOUT}
+    Run Keyword If    '${frequency}'== 'When I get sick'    Moving slider    0.00
+    Run Keyword If    '${frequency}'== 'On occasion'    Moving slider    50.00
+    Run Keyword If    '${frequency}'== 'Regularly'    Moving slider    100.00
+    
+Select Office Visits frequency
+    [Arguments]    ${frequency}
+    Wait Until Page Contains    In a year, do each of your family members visit the doctor   ${SELENIUM_TIMEOUT}
+    Click Element    xpath=//div[label[contains(text(),'${frequency}')]]/input
+    
+Select Network Access frequency
+    [Arguments]    ${frequency}
+    Wait Until Page Contains    How often would you or your family need access to out-of-network or national healthcare services?   ${SELENIUM_TIMEOUT}
+    Click Element    xpath=//div[label[contains(text(),'${frequency}')]]/input
+
+Click Find a Doctor button
+    Wait Until Keyword Succeeds    30    3    Click Link    Find a Doctor
+    
+Enter details in Find A Doctor popup
+    [Arguments]    ${zipValue}=${zipCode}
+    Sleep   5
+    Select Frame    xpath=//iframe
+    Sleep    3
+    Input Text    id=txtAddress    ${zipCode}
+    Click Element    id=btnSearch
+    Sleep   5
+    Page Should Not Contain    No Results Found    No Doctor found, please check zip code
+    Select Frame    xpath=//iframe
+    Get Source
+    Wait Until Page Contains Element    xpath=//*[@class='SelectDoctorButton']    ${APPCONF_LOAD_TIMEOUT}    Button to select Doctor is not displayed
+    Click Element    xpath=//*[@class='SelectDoctorButton']
+    Select Window
+    #Select Radio Button    Application.Applicant.PCP.Current_Patient    No
+
+Select Health status
+    [Arguments]    ${status}
+    Wait Until Page Contains    How would you describe this person's health?    ${SELENIUM_TIMEOUT}
+    Click Element    xpath=//div[label[contains(text(),'${status}')]]/input
+
+Select doctor radio button
+    [Arguments]    ${doctor_opt}
+    Set Suite Variable    ${current_doctor_opt}    ${doctor_opt}    
+    Check that Doctor Visits page is opened
+    Run Keyword If    "${doctor_opt}"=="Yes"    Click Element    id=searchProviderDialog
+#    Run Keyword If    "${doctor_opt}"=="Yes"    Doctor lookup
+    Run Keyword If    '${doctor_opt}'=='Maybe'    Click Element    id=Maybe
+    Run Keyword If    '${doctor_opt}'=='No Preference'    Click Element    id=No_Preference
+    Click Link    Save & Continue
+#
+#Doctor lookup
+#    TBD
+#
+#Select Doctors    
+#    TBD
+#    
+Select feature
+    [Arguments]    ${feature}
+    Check that Plan Features page is opened
+    Run Keyword If     '${feature}'=='Option to see any doctor or specialist of my choice, without a referral'    Click Element    xpath=//input[@id='Any_Dr']
+    Run Keyword If     '${feature}'=='Coverage for providers outside of our network'    Click Element    xpath=//input[@id='OON']
+    Run Keyword If     '${feature}'=='In-network coverage across the country'    Click Element    xpath=//input[@id='PCP']
+    Run Keyword If     '${feature}'=='Tax-savings advantage/Health Savings Account (HSA) eligible'    Click Element    xpath=//input[@id='HSA']
+    Run Keyword If     '${feature}'=='Selecting a doctor to manage your care'    Click Element    xpath=//input[@id='Rx']
+    Append To List    ${selected_features}    ${feature}
+
+Verify My Costs selection on summary page
+    Run Keyword If    '${current_costs}' == 'pay more each month'    Page Should Contain    Lower Monthly Cost
+    Run Keyword If    '${current_costs}' == 'pay less each month'    Page Should Contain    Higher Monthly Cost
+    Run Keyword If    '${current_costs}' == 'No Preference'    Page Should Contain    ${current_costs}
+
+Verify Deductible selection on summary page
+    Page Should Contain    ${current_deductible}
+    
+Verify Doctor option selection on summary page
+    Page Should Contain    ${current_doctor_opt}
+#    Page Should Contain    @{doctors}
+    
+Verify selected features on a summary page
+    ${length}=    Get Length    ${selected_features}
+    ${element}    Set Variable    
+    :FOR    ${i}    IN RANGE    ${length}
+    \  ${element}=    Get From List    ${selected_features}    0
+    \  Run Keyword If    '${element}' == 'Option to see any doctor or specialist of my choice, without a referral'    Page Should Contain    Choice of doctors
+    \  Run Keyword If    '${element}' == 'Coverage for providers outside of our network'    Page Should Contain    Out-of-Network option
+    \  Run Keyword If    '${element}' == 'In-network coverage across the country'    Page Should Contain    Primary Care Physician
+    \  Run Keyword If    '${element}' == 'Tax-savings advantage/Health Savings Account (HSA) eligible'    Page Should Contain    HSA
+    \  Run Keyword If    '${element}' == 'Selecting a doctor to manage your care'    Page Should Contain    RX    
+    \  Remove Values From List    ${selected_features}    ${element}
+
+    
+#Verify selected options on the plan selection screen    
+#    TBD
+#
+#Click Deductible tab
+#    Click Element    xpath=//div[@class='carousel-progress']//a[contains(text(),'Deductible')]
+#    Wait Until Page Contains    How much are you willing to pay    ${SELENIUM_TIMEOUT}
+
+################### Costs Estimator ###################
+
+Select Primary applicant health
+    [Arguments]    ${health}
+    Set Suite Variable    ${current_health}    ${health}
+    Check that Estimate Your Healthcare Costs page is opened
+    Run Keyword If    '${health}'== 'Empty'    Set Suite Variable    ${current_health}    ${EMPTY}
+    Run Keyword If    '${health}'== 'Healthy'    Click Element    xpath=//input[@data-id="HEALTHY"]
+    Run Keyword If    '${health}'== 'Moderately Healthy'    Click Element    xpath=//input[@data-id="MODERATELY_HEALTHY"]
+    Run Keyword If    '${health}'== 'Not Healthy'    Click Element    xpath=//input[@data-id="NOT_HEALTHY"]
+    
+Verify Primary applicant health selection on summary page
+    Page Should Contain Element    xpath=//table[@class='healthcare-needs-table']//span[contains(text(),'${current_health} (') and a[text()='Edit']]
+
+Select Dependent tab
+    [Arguments]    ${dep_number}
+    Check that Estimate Your Healthcare Costs page is opened
+    Click Element    xpath=//li[@data-id='${dep_number}']
+    Wait Until Page Contains   How would you describe    ${SELENIUM_TIMEOUT}    Health page has error
+    
+Select Dependent health
+    [Arguments]    ${d1_health}
+    ${dep_health}    Create List
+    Set Suite Variable    ${dep_health}
+    Run Keyword If    '${d1_health}'== 'Healthy'    Click Element    xpath=//input[@data-id="HEALTHY"]
+    Run Keyword If    '${d1_health}'== 'Moderately Healthy'    Click Element    xpath=//input[@data-id="MODERATELY_HEALTHY"]
+    Run Keyword If    '${d1_health}'== 'Not Healthy'    Click Element    xpath=//input[@data-id="NOT_HEALTHY"]
+    Append To List    ${dep_health}    ${d1_health}
+    
+Verify dependent health selection on summary page
+    ${length}=    Get Length    ${dep_health}
+    ${health}    Set Variable
+    ${name}    Set Variable      
+    :FOR    ${i}    IN RANGE    ${length}
+    \  ${health}=    Get From List    ${dep_health}    ${i}
+    \  ${name}=    Get From List    ${dep_names}    ${i}
+    \  Page Should Contain Element    xpath=//tr[td[contains(text(),'${name}')] and td[contains(.,'${health}')]]
+
+#Verify dependent health on summary page    after clicking Clear link
+#    Click Link    Recommendations
+#    Check that Recommendations page is opened
+#    Page Should Not Contain Element       xpath=(//table[@class='healthcare-needs-table']//span[contains(text(),'Healthy (') and a[text()='Edit']])[2]
+#
+#Verify Educational Area help text
+#    Page Should Contain    *Help Text TBD*
+#
+#Verify help text for no option selected
+#    Page Should Contain Element    xpath=//div[Text()='Your Health']
+#    Page Should Contain Element    xpath=//div[Text()='Make a selection']
+#    
+#Verify help text for Healthy option
+#    Page Should Contain Element    xpath=//div[Text()='Healthy']
+#    Page Should Contain Element    xpath=//div[Text()='You’re healthy. You have no physical issues. You are rarely sick.']
+#
+#Verify help text for Moderately Healthy option
+#    Page Should Contain Element    xpath=//div[Text()='Moderately Healthy']
+#    Page Should Contain Element    xpath=//div[Text()='You have a few health issues, but you are generally able to live your life without many ']
+#    
+#Verify help text for Not Healthy option
+#    Page Should Contain Element    xpath=//div[Text()='Not Healthy']
+#    Page Should Contain Element    xpath=//div[Text()='You are dependent upon health care to fulfill a normal life. You take daily medications and have routine doctor’s visits.']
+#    
+#Verify first apllicant's name is displayed on the tab
+#    Page Should Contain Element    xpath=//li[@data-id='0']//span[Text()='${fname}']
+#    
+#Verify dependent's name is displayed on the tab
+#    [Arguments]    ${dep_number}
+#    Page Should Contain Element    xpath=//li[@data-id='${dep_number}']//span[Text()='${fname2}']
+#
+#Check clicking Previous link on health screen
+#    Click Previous link
+#    Check that Plan Features page is opened
+#
+#Check clicking Previous link on dependent health screen
+#    Click Previous link
+#    Page Should Contain Element    xpath=//li[(@data-id='0') and //span[(contains(@class,'inactive'))]]
+#
+#Click Customize your usage button
+#    Click Link    Customize Your Usage
+#
+#Check default values for Healthy option
+#    Textfield Should Contain    xpath=//input[@data-id='genericPrescription']    1
+#    Textfield Should Contain    xpath=//input[@data-id='brandPrescription']    0
+#    Textfield Should Contain    xpath=//input[@data-id='specialtyPrescription']    0
+#    Textfield Should Contain    xpath=//input[@data-id='inDoctor']    0
+#    Textfield Should Contain    xpath=//input[@data-id='outDoctor']    0
+#    Textfield Should Contain    xpath=//input[@data-id='inSpecialist']    1
+#    Textfield Should Contain    xpath=//input[@data-id='inUrgentCare']    0
+#
+#Check default values for Moderately Healthy option
+#    Textfield Should Contain    xpath=//input[@data-id='genericPrescription']    9
+#    Textfield Should Contain    xpath=//input[@data-id='brandPrescription']    3
+#    Textfield Should Contain    xpath=//input[@data-id='specialtyPrescription']    0
+#    Textfield Should Contain    xpath=//input[@data-id='inDoctor']    3
+#    Textfield Should Contain    xpath=//input[@data-id='outDoctor']    3
+#    Textfield Should Contain    xpath=//input[@data-id='inSpecialist']    6
+#    Textfield Should Contain    xpath=//input[@data-id='inUrgentCare']    0
+#    
+#Check default values for Not Healthy option
+#    Textfield Should Contain    xpath=//input[@data-id='genericPrescription']    49
+#    Textfield Should Contain    xpath=//input[@data-id='brandPrescription']    17
+#    Textfield Should Contain    xpath=//input[@data-id='specialtyPrescription']    0
+#    Textfield Should Contain    xpath=//input[@data-id='inDoctor']    15
+#    Textfield Should Contain    xpath=//input[@data-id='outDoctor']    17
+#    Textfield Should Contain    xpath=//input[@data-id='inSpecialist']    31
+#    Textfield Should Contain    xpath=//input[@data-id='inUrgentCare']    1
+    
+################### Recommendations Keywords ###############
+
+#Click Recommendations button
+#    Click Element    xpath=//div[@class='action-title' and contains(text(),'Recommendations')]
+#    Wait Until Page Contains    Your Summary    ${SELENIUM_TIMEOUT}
+#
+#Change My Costs selection to
+#    [Arguments]     ${my_costs}
+#    Click Element    xpath=//a[@questionrefid="Q8"]
+#    Select my costs radio button    ${my_costs}
+#
+#Change Deductible selection to
+#    [Arguments]     ${deductible}
+#    Click Element    xpath=//a[@questionrefid="Q1"]
+#    Select deductible    ${deductible}
+#    
+#Change Doctor option selection to
+#    [Arguments]    ${doctor_opt}
+#    Click Element    xpath=//a[@questionrefid="Q7"]
+#    Select doctor radio button    ${doctor_opt}
+#
+#Edit Plan Features selection
+#    Click Element    xpath=//a[@questionrefid="Q4"]
+#    Click Link    Clear
+#    ${lenght}=    Get Length    ${selected_features}
+#    :FOR    ${i}    IN RANGE    ${lenght}
+#    \  Remove From List    ${selected_features}    0
+#    
+#Change Primary applicant health selection to
+#    [Arguments]    ${health}
+#    Wait Until Page Contains    Cost Estimator    ${SELENIUM_TIMEOUT}
+#    Click Element    xpath=//a[@questionrefid="Q6" and @memberrefname="0"]
+#    Select Primary applicant health    ${health}
+#
+#Change first Dependent health selection to
+#    [Arguments]    ${d1_health}
+#    Click Element    xpath=//a[@questionrefid="Q6" and @memberrefname="1"]
+#    Select first Dependent health    ${d1_health}
+#
+Navigate to plans from summary page
+    Click Link    Close & View Your Plans
+
+################### Compare plans #############
+    
+Get all plans on the page
+    ${plans_amount}=    Get Matching Xpath Count    //input[@class="plan-selector _planSelector"]
+    ${plans_on_page}    Create List
+    Set Suite Variable    ${plans_on_page}
+    :FOR    ${plan}    IN RANGE    ${plans_amount}
+    \  ${index}=    Evaluate    ${plan}+1
+    \  ${temp}=    Get Text    xpath=(//a[@class='plan-name _planName'])[${index}]
+    \  Append To List    ${plans_on_page}    ${temp}
+    Log    ${plans_on_page}    WARN
+    ${best_match}=    Get From List    ${plans_on_page}    1
+    Set Suite Variable    ${best_match}
+
+Verify selected plans are displayed
+    ${length}=    Get Length    ${selected_plans_names}
+    ${element}    Set Variable    
+    :FOR    ${i}    IN RANGE    ${length}
+    \  ${element}=    Get From List    ${selected_plans_names}    ${i}
+    \  Page Should Contain Element    xpath=//a[@class='plan-name _planName' and contains(normalize-space(),'${element}')]
+    
+Compare plans
+    Click Link    Compare
+    
+Delete plan
+    [Arguments]    ${index}
+    Capture Page Screenshot    Plans before delete.jpg
+    Set Suite Variable    ${del_plan_index}    ${index}
+    ${del_plan_name}    Get Text    xpath=(//a[@class='plan-name _planName'])[${del_plan_index}]
+    Set Suite Variable    ${del_plan_name}
+    Click Element    xpath=(//div[(@class='plan-card') or (@class='plan-card marked-plan')]/a)[${index}]
+    Remove Values From List    ${plans_on_page}    ${del_plan_name}
+    Remove Values From List    ${selected_plans_names}    ${del_plan_name}
+    Wait Until Page Contains Element    xpath=(//a[@class='plan-name _planName'])
+    
+#Verify Compare page after deleting plan
+#    Check that deleted plan is no longer displayed
+#    Check that new plan is displayed instead of the deleted one
+#    Verify selected plans are displayed
+#
+#Check that deleted plan is no longer displayed
+#    Page Should Not Contain    ${del_plan_name}
+#    
+#Check that new plan is displayed instead of the deleted one
+#    ${temp}=    Get From List    ${plans_on_page}    0
+#    Page Should Contain    ${temp}
+#
+#Check that Compare link is disabled in small view
+#    Page Should Contain Element    xpath=//span[@class="shop-icon-all-active"]
+#
+#Check that Compare link is disabled in large view
+#    Page Should Contain Element        xpath=//a[contains(text(),'More')]
+#    
+#Check that Compare link is disabled in full view
+#    Page Should Contain Element    xpath=//span[@class="shop-icon-details-active"]    
+#    
+Add plan to cart
+    [Arguments]    ${index}
+    Set Suite Variable    ${add_plan_index}    ${index}
+    ${add_plan_name}    Get Text    xpath=(//a[@class='plan-name _planName'])[${add_plan_index}]
+    Set Suite Variable    ${add_plan_name}
+    Click Element    xpath=(//a[@class='btn_primary plan-select _selectLink'])[${add_plan_index}]
+
+Check that added plan is displayed in the cart
+    Wait Until Page Contains    Items In Your Cart
+    Page Should Contain    ${add_plan_name}    
+
+Replace plan
+    [Arguments]    ${index}
+    Set Suite Variable    ${rep_plan_index}    ${index}
+    ${add_plan_name}    Get Text    xpath=(//a[@class='plan-name _planName'])[${rep_plan_index}]
+    Set Suite Variable    ${add_plan_name}
+    Click Element    xpath=(//a[@class='btn_primary plan-select _selectLink'])[${rep_plan_index}]
+    
+Check that replaced plan is displayed in the cart
+    Page Should Contain    ${add_plan_name}    
+
+Close cart
+    Click Button    close
+
+    
+################### Email and Print Keywords ###############
+
+Switch to small view
+    Wait Until Page Contains    Add to Cart    ${SELENIUM_TIMEOUT}
+    Sleep    10
+    Click Element    xpath=//a[@title='View All Plans']
+
+Switch to large view
+    Wait Until Page Contains    Add to Cart    ${SELENIUM_TIMEOUT}
+    Click Element    xpath=//a[@title='View Plan Comparison']
+    
+Switch to full view
+    Wait Until Page Contains    Add to Cart    ${SELENIUM_TIMEOUT}
+    Click Element    xpath=//a[@title='View Single Plan Details']
+
+Open plan in full view
+    [Arguments]    ${index}
+    ${selected_plan_name}=    Get Text    xpath=(//a[@class='plan-name _planName'])[${index}]
+    Click Element    xpath=(//a[@class='plan-name _planName'])[${index}]
+    Wait Until Page Contains    ${selected_plan_name}
+
+#Add plan to cart by name
+#    [Arguments]    ${name}
+#    ${tmp}=    Get Index From List    ${plans_on_page}    ${name}
+#    ${index}=    Evaluate    ${tmp}+1
+#    Set Suite Variable    ${add_plan_name}    ${name}
+#    Click Element    xpath=(//a[@class='btn_primary plan-select _selectLink'])[${index}]
+##    Click Element    xpath=(//a[@class='plan-name _planName'])[${index}]
+##    xpath=(//a[contains(Text(),'${name}')])[1] (//a[(@class='plan-name _planName') and (Text()='${name}')])[1]
+#    Wait Until Page Contains    ${add_plan_name}
+#    
+Select plan(s) small view
+    [Arguments]    ${amount}
+    Set Suite Variable    ${number_of_slctd_plans}    ${amount}
+    ${selected_plans_index}    Create List
+    ${selected_plans_names}    Create List
+    Set Suite Variable    ${selected_plans_names}
+    ${plan_index}    Set Suite Variable    ${EMPTY}
+    ${selected_plan_name}    Set Suite Variable    ${EMPTY}
+    :FOR    ${i}    IN RANGE    ${amount}
+    \  ${plan_index}=    Generate Random String    1    123456789
+    \  ${selected_plan_name}=    Get Text    xpath=(//a[@class='plan-name _planName'])[${plan_index}]
+    \  Log    ${selected_plan_name}    WARN
+    \  Append To List    ${selected_plans_index}    ${plan_index}
+    \  Append To List    ${selected_plans_names}    ${selected_plan_name}
+    \  Wait Until Page Contains Element    xpath=(//input[@class="plan-selector _planSelector"])[${plan_index}]    ${SELENIUM_TIMEOUT}
+    \  Click Element    xpath=(//input[@class="plan-selector _planSelector"])[${plan_index}]
+    
+
+Click Add to Cart for plan
+    [Arguments]    ${planName}
+    Click Element    xpath=//div[@class='plan-card-details' and a[contains(text(),'${planName}')]]//a[text()='Add to Cart']
+    
+Click Add to Quote for plan
+    [Arguments]    ${planName}
+    Click Element    xpath=//div[@class='plan-card-details' and a[contains(text(),'${planName}')]]//a[contains(.,'Add to Quote')]
+
+Click Dental to plan
+    [Arguments]    ${dental}
+    Click Element    xpath=//div[@class='plan-card' and div[contains(text(),'${dental}')]]//a[text()='Add']
+
+#Enter details in Wellmark SSO Front Door page
+#    Wait Until Page Contains    Wellmark SSO Front Door    ${SELENIUM_TIMEOUT}    Wellmark SSO Front Door page has not displayed
+#    Input Text    id=firstName    ${userFName}
+#    Input Text    id=lastName    ${userLName}
+#    Input Text    name=email    ${CT_EMAIL}
+#    Click Element    id=submitFields
+
+#
+#Select plan(s) large view
+#    [Arguments]    ${amount}
+#    Set Suite Variable    ${number_of_slctd_plans}    ${amount}
+#    ${selected_plans_index}    Create List
+#    ${selected_plans_names}    Create List
+#    Set Suite Variable    ${selected_plans_names}
+#    ${plan_index}    Set Suite Variable    ${EMPTY}
+#    ${selected_plan_name}    Set Suite Variable    ${EMPTY}
+#    :FOR    ${i}    IN RANGE    ${amount}
+#    \  ${plan_index}=    Generate Random String    1    123
+#    \  ${selected_plan_name}=    Get Text    xpath=(//a[@class='plan-name _planName'])[${plan_index}]
+#    \  Log    ${selected_plan_name}    WARN
+#    \  Run Keyword If    '${number_of_slctd_plans}' >= '${plan_index}'    Append To List    ${selected_plans_index}    ${plan_index}
+#    \  Run Keyword If    '${number_of_slctd_plans}' >= '${plan_index}'    Append To List    ${selected_plans_names}    ${selected_plan_name}
+#    \  Run Keyword If    '${number_of_slctd_plans}' >= '${plan_index}'    Wait Until Page Contains Element    xpath=(//input[@class="plan-selector _planSelector"])[${plan_index}]    ${SELENIUM_TIMEOUT}
+#    \  Run Keyword If    '${number_of_slctd_plans}' >= '${plan_index}'    Click Element    xpath=(//input[@class="plan-selector _planSelector"])[${plan_index}]
+#
+#Click Less link for plan
+#    [Arguments]    ${index}
+#    Click Element    xpath=(//a[@title="See Less Plan Highlights"])[${index}]
+#    Capture Page Screenshot    Clicked Less link.jpg
+#    Page Should Contain Element    xpath=//a[@title="See More Plan Highlights"]
+#    
+#    
+##    \  Run Keyword If    '${plan_index}' != '0'    Wait Until Page Contains Element    xpath=//div[@class='content-section play after-sidebar']/div[${plan_index}]/input    ${SELENIUM_TIMEOUT}
+##    \  Run Keyword If    '${plan_index}' != '0'    Click Element    xpath=//div[@class='content-section play after-sidebar']/div[${plan_index}]/input
+##    \  Run Keyword If    '${plan_index}' != '0'    Append To List    ${selected_plans}    Get plan name
+##
+##    ${lenght}=    Get Length    ${selected_features}
+##    ${element}    Set Variable    
+##    :FOR    ${i}    IN RANGE    ${length}
+##    \  ${element}=    Get From List    ${selected_features}    0
+##    \  Page Should Contain    ${element}
+##    \  Remove Values From List    ${selected_features}    ${element}
+#
+#Get plan name
+#    ${selected_plan_name}=   Get Text    xpath=//div[@class='content-section play after-sidebar']/div[${plan_index}]/div/a    
+#    
+#    
+#Select plans large view
+#    ******
+#Print selected plan(s)
+#    ******
+#    
+#Send email to
+#    [Arguments]    ${email}
+#    Set Suite Variable    ${curent_email}    ${email}
+#    Click Link    Email
+#    Input Text    *TEXTFIELD*    ${email}
+#    Click Link    *BUTTON*
+#
+#Verify email with plans
+#    Open Browser    ${site}    browser=${BROWSER}    http:\\google.com
+#    Maximize Browser Window
+#    Wait Until Page Contains    Gmail    ${SELENIUM_TIMEOUT}    Gmail link has not displayed
+#    Click Element    gb_23
+#    Wait Until Page Contains    Sign in    ${SELENIUM_TIMEOUT}     Error on Gmail sign in page
+#    Input Text    Email    ${curent_email}
+#    Input Text    Passwd
+#    Click Element    signIn
+#    Click Element    *EMAILS NAME*
+#    Page Should Contain    *TBD*
+#    Click Link    *Link To Plan(s) on Carrier Site*
+#    Page Should Contain    *TBD*
+#
+#Navigate back to See and Compare plans
+#    Click Link    See & Compare Plans
+#
+#Deselect selected earlier plans
+#    Click Element    xpath=//div[@class='content-section play after-sidebar']/div[${current_plan}]/input
+
+################### Login Keywords ###############    
+#
+#Login into application
+#    [Arguments]    ${username}    ${password}
+#    Click Link    Log In 
+#    Wait Until Page Contains Element    username    ${SELENIUM_TIMEOUT}    Login page wasn't displayed
+#    Input Text    LoginEdit_username    ${username}
+#    Input Text    LoginEdit_password    ${password}
+#    sleep    2s
+#    Click Button    LoginEdit_login_button    
+#    
+Broker logs in to application
+    Click Link    Returning User Login
+    Wait Until Page Contains    Welcome    ${SELENIUM_TIMEOUT}    Welcome screen has not displayed
+    Input Text    name=username    bobbroker
+    Input Text    name=password    password
+    Comment    Introduced sleep as per 6.1 maint application behaviour
+    Sleep    2s
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Click Button    name=login.button
+    Wait Until Page Contains    Welcome, Bob Broker!    ${SELENIUM_TIMEOUT}    Dashboard has not displayed
+#    Wait Until Page Contains    Welcome, shah broker!    ${SELENIUM_TIMEOUT}    Dashboard has not displayed
+
+Selects IFP Case
+    Wait Until Page Contains    Dashboard    ${SELENIUM_TIMEOUT}
+    Execute Javascript    $('#activities').parent().showSuperfishUl()
+    Execute Javascript    $('#newCase').parent().showSuperfishUl()
+    Click Link    ifpCase
+    
+Finalize Quote
+    Click Element    xpath=//a[@class='quote-receipt _quoteShow']
+    Click Link    Finalize quote
+    Click Link    ×
+    
+Click Link Get Started
+    Wait Until Keyword Succeeds    60    5    Click Link    Get Started
+
+#Broker starts application
+#    Mouse Over    activities
+#    Sleep    2
+#    Mouse Over    applyEnroll
+#    Sleep    2
+#    Click Element    ifpApplyEnroll
+#    Sleep     3
+#    Wait Until Page Contains Element    ZIP    ${SELENIUM_TIMEOUT}    Start Application screen wasn't displayed
+#    Input Text    ZIP    19118
+#    Click Next Button
+#    Wait Until Page Contains Element    CoverageTypeSave_countyId    ${SELENIUM_TIMEOUT}    County dropdown wasn't displayed
+#    Select From List    CoverageTypeSave_countyId    Philadelphia
+#    Click Next Button    
+#
+#
+#Download application screen displays
+#    Wait Until Page Contains    Download Application    ${SELENIUM_TIMEOUT}    Download Application screen has not displayed
+#    Page Should Contain    Thank You!
+#    Page Should Contain Link    Download Application    
+#    
+#Forward app to consumer
+#    Wait Until Page Contains Element    name=birthDate    ${SELENIUM_TIMEOUT}    Forward Application to Consumer screen wasn't displayed
+#    Input Text    name=birthDate    ${consumerBirthDate}
+#    Input Text    name=message    Application is ready to be sent
+#    Sleep    5
+##    Input Text    name=userProfile.user.emailAddress    ${email}
+#    Click Button    Email to Client
+#    Sleep    2
+#    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Page Should Contain    Thank you for Sending an Application    
+#    
+#Customer Connects Gmail
+#    Go To    http://gmail.com/
+#    Wait Until Page Contains    Gmail    ${SELENIUM_TIMEOUT}    Gmail Home screen wasn't displayed
+#    ${retElem}=    Run Keyword And Ignore Error    Element Should Not Be Visible    name=Email
+#    Run Keyword If    '${retElem[0]}'=='FAIL'    Login Gmail
+#    Run Keyword Unless    '${retElem[0]}'=='FAIL'    Wait Until Keyword Succeeds    120s    2s    Page Should Contain    Inbox
+#    
+#Login Gmail
+#    Input Text    name=Email    ${email}
+#    Input Text    name=Passwd    ${emailPwd}
+#    Click Button    name=signIn
+#    Wait Until Keyword Succeeds    120s    2s    Page Should Contain    Inbox
+#    
+#
+#User opens email invitation message
+#    ${curTime}=    Get Time    epoch
+#    ${deadLine}=    Evaluate    ${curTime}+${EMAIL_TIMEOUT}
+#    :FOR    ${index}    IN RANGE    1000
+#    \    ${count}=    Get Matching Xpath Count    //span[contains(.,'Dear ${userFName}')]
+#    \    ${elapse}=        Get Time    epoch
+#    \    Run Keyword If     ${count}>0    Exit For Loop    
+#    \    Run Keyword If    ${elapse}>${deadLine}    Exit For Loop
+#    \    Sleep    20
+#    \    Wait Until Page Contains Element    xpath=//a[contains(text(),'Inbox')]    5
+#    \    Click Element    xpath=//a[contains(text(),'Inbox')]
+#    Run Keyword If    ${count}>0    Click Element    xpath=//span[contains(.,'Dear ${userFName}')]
+#    Run Keyword If    ${elapse}>${deadLine}    Fail    Email was not recieved in ${EMAIL_TIMEOUT} seconds.    
+#
+#User verifies email content of gmail and proceed for registration
+#    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Page Should Contain    Dear ${userFName},
+##    log    ${appID}    WARN
+##    Page Should Contain    RE: Application ${appID}
+#    Page Should Contain    would like you to complete an online application.
+#    Page Should Contain    Application is ready to be sent
+#    Page Should Contain    Please log on to view, complete and submit your application within 30 days or it will expire. 
+#    Page Should Contain    If the application expires, you will need to start a new application or have 
+#    Page Should Contain    If you have questions about your application, contact your agent at 
+#    Page Should Contain    Please do not reply to this email. Thank you for your interest.
+#    Page Should Contain    Sincerely,
+#    Page Should Contain    Bob Broker
+#    Click Link   log on
+#    Close Window
+#    Sleep    5
+#    Select Window    title=InsureAdvantage - Consumer Registration
+#    
+#Enter detail in Consumer Registration
+#    Wait Until Page Contains    Consumer Registration    ${SELENIUM_TIMEOUT}    Consumer Registration screen wasn't displayed
+#    Input Text    lastName    ${userLName}
+#    Input Text    dateOfBirth    ${consumerBirthDate}
+#    Click Element    xpath=//button[contains(text(),'Continue')]
+#    
+#Proceed From My Account
+#    Wait Until Page Contains    My Account    ${SELENIUM_TIMEOUT}    My Account screen wasn't displayed
+#    Sleep    3
+#    Click Element    xpath = //button[contains(text(),'Complete')]
+#
+#    
+################### Prior to applying Keywords ###############    
+#
+#Check fields pre-populated from shopping on Prior to applying screen
+#    Wait Until Page Contains Element    userLastName
+#    Page Should Contain Element    xpath=//input[(@id="userFirstName") and (@value="${userFName}")]
+#    Page Should Contain Element    xpath=//input[(@id="priorToApplyingForm_priorToApplyingInfo_userProfile_address_zip") and (@value="${zipCode}")]
+#
+Enter details in Prior To Applying page as consumer
+    [Arguments]    ${method}    ${agent}
+    Wait Until Page Contains Element    name=priorToApplyingInfo.userProfile.user.lastName
+    Sleep    5
+    Input Text    priorToApplyingInfo.userProfile.user.firstName    ${userFName}
+    Input Text    priorToApplyingInfo.userProfile.user.lastName    ${userLName}
+    Input Text    priorToApplyingInfo.userProfile.address.addrLine1    Addr 12
+    Input Text    priorToApplyingInfo.userProfile.address.city    Des Moines
+    Input Text    priorToApplyingForm_priorToApplyingInfo_userProfile_user_emailAddress    ${email}
+    Select From List    priorToApplyingForm_priorToApplyingInfo_userProfile_preferredContactMethod    Email
+    Select From List    priorToApplyingForm_priorToApplyingInfo_userProfile_bestContactTime    Morning
+    Input Text    priorToApplyingInfo.registrationInfo.userId    consumer${randNbr}
+    Input Text    priorToApplyingInfo.registrationInfo.password    password1
+    #${randNbr}
+    Input Text    priorToApplyingInfo.registrationInfo.confirmPassword    password1
+    #${randNbr}
+    Select From List By Index    priorToApplyingInfo.registrationInfo.secretQuestion    3
+    Input Text    priorToApplyingInfo.registrationInfo.secretAnswer    porsche
+    Run Keyword If    '${method}'=='Online'    Click Element    priorToApplyingInfo.submissionMethod
+    Run Keyword If    '${method}'=='Paper'    Click Element    priorToApplyingInfo.submissionMethod
+    Run Keyword If    '${agent}'=='Yes'    Select Radio Button    priorToApplyingInfo.userProfile.workingWithAnAgent    Y
+    Run Keyword If    '${agent}'=='No'    Select Radio Button    priorToApplyingInfo.userProfile.workingWithAnAgent    N
+    Click Link    Continue
+    
+Broker completes Prior To Applying page
+    [Arguments]    ${method}
+    Wait Until Page Contains Element    userLastName
+    Sleep    5
+    Input Text    userFirstName    ${userFName}
+    Input Text    userLastName    ${userLName}
+    Input Text    priorToApplyingForm_priorToApplyingInfo_userProfile_user_emailAddress    ${email}
+    Select From List    priorToApplyingForm_priorToApplyingInfo_userProfile_preferredContactMethod    Email
+    Select From List    priorToApplyingForm_priorToApplyingInfo_userProfile_bestContactTime    Morning
+#    Run Keyword If    '${method}'=='Client Start Online'    Click Element    priorToApplyingForm_whoWillStartconsumer
+    Run Keyword If    '${method}'=='Broker Start Online'    Click Element    priorToApplyingForm_whoWillStartbroker
+    Run Keyword If    '${method}'=='Client Complete Paper'    Click Element    priorToApplyingForm_whoWillStartpaperapp
+    Run Keyword If    '${method}'=='Broker Complete Online'    Click Element    priorToApplyingForm_whoWillStartpaperAppOnline
+    Click Link    Continue
+    
+Click Start Application Button
+    Click Element    xpath=//a[@class='buttonNext']
+
+Pass through Checklist screen
+    Wait Until Page Contains Element    xpath=//a[@class='buttonNext']    60
+    Sleep    3
+    Click Start Application Button
+    
+################### Personal Info Keywords ###############    
+#
+#Click Next Button
+#    Execute Javascript    $("[class='buttonNext']").click()
+#
+Broker Enters Primary Applicant details, selects Coverage for
+    [Arguments]    ${coverageFor}
+    Wait Until Page Contains Element    Application.Coverage_For    ${SELENIUM_TIMEOUT}    Personal Information screen wasn't displayed
+    Select From List    Application.Coverage_For    ${coverageFor}
+    Execute Javascript    $("[name='Application.Applicant.Last_Name']").val('${userLName}')
+    Input Text    name=Application.Applicant.Address_1    Address11
+    Input Text    name=Application.Applicant.City    Adams
+    Select From List    name=Application.Applicant.State    WI
+    Input Text    name=Application.Applicant.Zip    ${zipCode}
+    Execute Javascript    $("[name='Application.Applicant.Mailing_Address.Address_Same_Primary'][value='Yes']").click()
+    Input Text    name=Application.Applicant.Home_Phone    1111111111
+    Input Text    name=Application.Applicant.Ssn    ${ssnCode}
+#    Input Text    name=Application.Applicant.Dob    11231981
+    Select Radio Button    Application.Applicant.Gender    Male
+    Select Radio Button    Application.Applicant.Tobacco    Yes
+    Run Keyword If    '${coverageFor}'=='My Child'    Enter Legal Guardian Info and update Child info
+    Execute Javascript    $("[class='buttonNext']").click()
+
+Enter Primary Applicant details - Consumer
+    [Arguments]    ${coverageFor}
+    Wait Until Page Contains Element    name=Application.Coverage_For    ${APPCONF_LOAD_TIMEOUT}     Page takes more than ${APPCONF_LOAD_TIMEOUT} to load or wrong page displayed
+    Input Text    name=Application.Applicant.Last_Name    ${userLName}
+    Input Text    name=Application.Applicant.Address_1    Addr 12
+    Input Text    name=Application.Applicant.City    Des Moines
+    Execute Javascript    $("[name='Application.Applicant.Mailing_Address.Address_Same_Primary'][value='Yes']").click()
+    Input Text    name=Application.Applicant.Home_Phone    1111111111
+    Input Text    name=Application.Applicant.Ssn    ${SSNcode}
+    Run Keyword If    '${coverageFor}'=='My Child'    Enter Legal Guardian Info and update Coverage selection
+    #Select From List    name=Application.Applicant.Marital_Status    Single
+    #Execute Javascript    $("[name='Application.Applicant.Disabled'][value='No']").click()
+    #Execute Javascript    $("[name='Application.Applicant.Medicare_Eligible'][value='No']").click()
+    #Execute Javascript    $("[class='buttonNext']").click()
+    Click Link    Next
+
+Pass Family Members page
+    Wait Until Page Contains    Family Members    ${APPCONF_LOAD_TIMEOUT}    Family Members screen has not displayed
+    Sleep    3
+    Click Link    Next
+
+Pass Primary Care Provider page
+    Wait Until Page Contains    Primary Care Provider    ${APPCONF_LOAD_TIMEOUT}    Primary Care Provider screen has not displayed
+    Sleep    3
+    Execute Javascript    $("[class='buttonNext']").click()
+
+Enter details in Prior Coverage page
+    Wait Until Page Contains Element    name=Application.Previous_Members    ${APPCONF_LOAD_TIMEOUT}    Primary Care Provider screen has not displayed
+    Select Radio Button    Application.Previous_Members    No
+    Click Link    Next
+
+Verify that Plan is selected
+    [Arguments]    ${planName}
+    Wait Until Keyword Succeeds    20    2s    Page Should Contain Element    xpath=//div[div[contains(text(),'${planName}')]]//span[text()='Selected Plan']
+
+Enter details in Current Other Coverage page
+    [Arguments]    ${option}=No
+    Wait Until Page Contains    Current Other Coverage    ${APPCONF_LOAD_TIMEOUT}    Current Other Coverage screen has not displayed
+    Select Radio Button    Application.Have_Addtl_Coverage    ${option}
+    Run Keyword If    '${option}'=='No'    Click Link    Continue
+    
+Enter details in Payment Options page
+    Wait Until Page Contains    Payment Options    ${APPCONF_LOAD_TIMEOUT}    Payment Options screen has not displayed
+    Select From List    name=Application.Payment_Details.Initial_Method    Check
+    Wait Until Page Contains Element    name=Application.Initial_Bill.Recipient_Name    10
+    Input Text    name=Application.Initial_Bill.Recipient_Name    ${userFName} ${userLName}
+    Input Text    name=Application.Initial_Bill.Billing_Address_1    Addr 12
+    Input Text    name=Application.Initial_Bill.Billing_City    Adams
+    Select From List    name=Application.Initial_Bill.Billing_State    WI
+    Input Text    name=Application.Initial_Bill.Billing_Zip    53910
+    #Select From List     name=Application.Payment_Details.Ongoing_Method    Direct Bill
+    #Wait Until Page Contains Element    name=Application.Payment_Details.Frequency_2    10
+    #Select From List    name=Application.Payment_Details.Frequency_2    Annually
+    #Select Radio Button    Application.Applicant.Billing_Address.Same_As_Primary    Yes
+    Click Link    Next
+    
+#Enter details in Employer Payment Arrangements page
+#    Wait Until Page Contains    Employer Payment Arrangements    ${APPCONF_LOAD_TIMEOUT}    Family Members screen has not displayed
+#    Select Radio Button    Application.Employer_Pay    No
+#    Select Radio Button    Application.Premium_Deductible    No
+#    Click Link    Continue
+
+Pass Verify Application page
+    Wait Until Page Contains    Verify Application    ${APPCONF_LOAD_TIMEOUT}    Verify Application screen has not displayed
+    Sleep    3
+    Click Link    Next
+
+Pass Authorized Representative page
+    Wait Until Page Contains    Authorized Representative    ${APPCONF_LOAD_TIMEOUT}    Authorized Representative screen has not displayed
+    Sleep    3
+    Click Link    Next
+
+Enter details in Submit Application on Behalf of Applicant page
+    [Arguments]    ${fname}=${userFName}    ${mname}=${EMPTY}    ${lname}=${userLName}
+    ${isApNdisplayed}=    Get Matching Xpath Count     //input[@name='Application.Signature.Incarcerated_Name']
+    ${isCNdisplayed}=    Get Matching Xpath Count     //input[@name='Application.Signature.Confirm_First_Name']
+    Run Keyword If    '${isApNdisplayed}'=='1'    Input Text    name=Application.Signature.Incarcerated_Name    ${userFName} ${userLName}
+#    Select Checkbox    Application.Signature.SBC_Provided
+    Select Checkbox    Application.Signature.Agreed_To_Terms
+    Input Text    name=Application.Signature.First_Name    ${fname}
+    Input Text    name=Application.Signature.Middle_Initial    ${mname}
+    Input Text    name=Application.Signature.Last_Name    ${lname}
+    Run Keyword If    '${isCNdisplayed}'=='1'    Input Text    name=Application.Signature.Confirm_First_Name    ${fname}
+    Run Keyword If    '${isCNdisplayed}'=='1'    Input Text    name=Application.Signature.Confirm_Middle_Initial    ${mname}
+    Run Keyword If    '${isCNdisplayed}'=='1'    Input Text    name=Application.Signature.Confirm_Last_Name    ${lname}
+    Click Link    Submit Application
+    
+#Verify personal data prepopulated from Shopping
+#    Wait Until Page Contains Element    Application.Coverage_For    ${SELENIUM_TIMEOUT}    Personal Information screen wasn't displayed
+#    List Selection Should Be    Application.Coverage_For    My Family
+##    Page Should Contain Element    xpath=//div[(//label[text()='Effective Date']) and (contains(text(),'${eff_date}'))]
+#    Textfield Should Contain    Application.Applicant.First_Name    ${userFName}
+#    Textfield Should Contain    Application.Applicant.Last_Name    ${userLName}
+#    List Selection Should Be    Application.Applicant.State    PA
+#    Element Should Be Disabled        Application.Applicant.State    
+#    Textfield Should Contain    Application.Applicant.Zip    ${zipCode}
+#    Element Should Be Disabled        Application.Applicant.Zip
+#    Textfield Should Contain    Application.Applicant.Dob    ${selfDOB}
+#    Element Should Be Disabled        Application.Applicant.Dob
+#    List Selection Should Be    Application.Applicant.Gender    ${selfGender}
+#    Element Should Be Disabled        Application.Applicant.Gender
+#    List Selection Should Be    Application.Applicant.Tobacco    ${selfTobacco}
+#    Element Should Be Disabled        Application.Applicant.Tobacco
+#
+#Brokers adds Spouse and enters her data
+#    Wait Until Page Contains Element    Family Members    ${SELENIUM_TIMEOUT}    Family Members screen wasn't displayed
+#    Click Add Family Member button
+#    Wait Until Page Contains Element    Application.Dependent[0].First_Name    ${SELENIUM_TIMEOUT}    Family Members wasn't added
+#    Broker enters Spouse Details
+#    Click Next Button
+#    
+#Click Add Family Member button
+#    Click Link    Add Family Member
+#    
+#Broker enters Spouse Details
+#    Input Text    Application.Dependent[0].First_Name    ${spouseFName}
+#    Input Text    Application.Dependent[0].Last_Name    ${spouseLName}
+#    Select From List    Application.Dependent[0].Suffix    Sr.
+#    Select Radio Button    Application.Dependent[0].Address_Same_Primary    Yes
+#    Select From List    Application.Dependent[0].Relationship    Spouse
+#    Input Text    Application.Dependent[0].Ssn    222222222
+#    Input Text    Application.Dependent[0].Dob    10211983
+#    Select From List    Application.Dependent[0].Gender    Female
+#    Select From List    Application.Dependent[0].Tobacco    No
+#
+#Broker enters Child1 Details
+#    Input Text    Application.Dependent[1].First_Name    ${child1FName}
+#    Input Text    Application.Dependent[1].Last_Name    ${child1LName}
+#    Select From List    Application.Dependent[1].Suffix    Jr.
+#    Select Radio Button    Application.Dependent[1].Address_Same_Primary    Yes
+#    Select From List    Application.Dependent[1].Relationship    Child
+#    Input Text    Application.Dependent[1].Ssn    222222222
+#    Input Text    Application.Dependent[1].Dob    04012000
+#    Select From List    Application.Dependent[1].Gender    Female
+#    Select From List    Application.Dependent[1].Tobacco    No    
+#    
+#User enters Spouse Details
+#    Input Text    Application.Dependent[0].Last_Name    ${spouseLName}
+#    Select From List    Application.Dependent[0].Suffix    Sr.
+#    Select Radio Button    Application.Dependent[0].Address_Same_Primary    Yes
+#    Input Text    Application.Dependent[0].Ssn    222222222
+#    
+#User enters Child1 Details    
+#    Input Text    Application.Dependent[1].Last_Name    ${child1LName}
+#    Select From List    Application.Dependent[1].Suffix    Jr.
+#    Select Radio Button    Application.Dependent[1].Address_Same_Primary    Yes
+#    Input Text    Application.Dependent[1].Ssn    333333333
+#
+#Verify Spouse data prepopulated from Shopping
+#    ${spouseDOB}    Set Variable
+#    ${spouseDOB}=    Get From List    ${dep_dobs}    0
+#    ${spouseGender}    Set Variable
+#    ${spouseGender}=    Get From List    ${dep_genders}    0
+#    ${spouseFName}    Set Variable
+#    ${spouseFName}=    Get From List    ${dep_names}    0
+#    Wait Until Page Contains Element    name=Application.Dependent[0].Last_Name    ${SELENIUM_TIMEOUT}    Additional Applicants screen wasn't displayed
+#    Textfield Should Contain    Application.Dependent[0].First_Name    ${spouseFName}
+#    Run Keyword And Ignore Error    Element Should Be Disabled        Application.Dependent[0].First_Name
+#    List Selection Should Be    Application.Dependent[0].Relationship    Spouse
+#    Run Keyword And Ignore Error    Element Should Be Disabled        Application.Dependent[0].Relationship
+#    Textfield Should Contain    Application.Dependent[0].Dob    ${spouseDOB}
+#    Run Keyword And Ignore Error    Element Should Be Disabled        Application.Dependent[0].Dob
+#    List Selection Should Be    Application.Dependent[0].Gender    ${spouseGender}
+#    Run Keyword And Ignore Error    Element Should Be Disabled        Application.Dependent[0].Gender
+#    List Selection Should Be    Application.Dependent[0].Tobacco    ${spouseTobacco}
+#    Run Keyword And Ignore Error    Element Should Be Disabled        Application.Dependent[0].Tobacco
+#    
+#Verify Child1 data prepopulated from Shopping
+#    ${child1DOB}    Set Variable    
+#    ${child1DOB}=    Get From List    ${dep_dobs}    1
+#    ${child1Gender}    Set Variable
+#    ${child1Gender}=    Get From List    ${dep_genders}    1
+#    ${child1FName}    Set Variable
+#    ${child1FName}=    Get From List    ${dep_names}    1
+#    Wait Until Page Contains Element    name=Application.Dependent[1].Last_Name    ${SELENIUM_TIMEOUT}    Additional Applicants screen wasn't displayed
+#    Textfield Should Contain    Application.Dependent[1].First_Name    ${child1FName}
+#    Run Keyword And Ignore Error    Element Should Be Disabled        Application.Dependent[1].First_Name
+#    List Selection Should Be    Application.Dependent[1].Relationship    Child
+#    Run Keyword And Ignore Error    Element Should Be Disabled        Application.Dependent[1].Relationship
+#    Textfield Should Contain    Application.Dependent[1].Dob    ${child1DOB}
+#    Run Keyword And Ignore Error    Element Should Be Disabled        Application.Dependent[1].Dob
+#    List Selection Should Be    Application.Dependent[1].Gender    ${child1Gender}
+#    Run Keyword And Ignore Error    Element Should Be Disabled        Application.Dependent[1].Gender
+#    List Selection Should Be    Application.Dependent[1].Tobacco    ${child1Tobacco}
+#    Run Keyword And Ignore Error    Element Should Be Disabled        Application.Dependent[1].Tobacco
+#
+Enter Legal Guardian Info and update Coverage selection
+    Select From List    Application.Coverage_For    My Child/Children
+    Wait Until Page Contains    For a child-only application, please enter    ${SELENIUM_TIMEOUT}    Child-only text wasn't displayed
+    Wait Until Page Contains    Legal Guardian Information    ${SELENIUM_TIMEOUT}    Legal Guardian section wasn't displayed
+    Input Text    Application.Applicant.Guardian.First_Name    ${fname2}
+    Input Text    Application.Applicant.Guardian.Last_Name    ${userLName}
+    Select From List    Application.Applicant.Guardian.Relationship    Parent
+    Input Text    Application.Applicant.Guardian.Home_Phone    1111111111
+#    Select Radio Button    Application.Applicant.Guardian.Address_Same_Primary    No
+    Execute Javascript    $("[name='Application.Applicant.Guardian.Address_Same_Primary'][value='No']").click()
+    Input Text    Application.Applicant.Guardian.Address_1    Blue Mound Drive 137
+    Input Text    Application.Applicant.Guardian.City    Phila
+    Select From List    Application.Applicant.Guardian.State    WI
+    Input Text    Application.Applicant.Guardian.Zip    54514
+#    Input Text    Application.Applicant.First_Name    ${child1FName}
+#    Input Text    Application.Applicant.Last_Name    ${child1LName}
+#    Input Text    Application.Applicant.Dob    09082007
+    
+################### Plan Selection Keywords ###############    
+Selects Plan By Name
+    [Arguments]    ${planName}
+    Select Checkbox    xpath=//tr[td[a[contains(text(),'${planName}')]]]//input[@type='checkbox']
+#    log    ${planName}    WARN
+#    Append To List    ${plan_val}    ${planName}
+
+Generate Proposal
+    Wait Until Page Contains    Quote Summary -- Generate Proposal    ${SELENIUM_TIMEOUT}    Quote Summary -- Generate Proposal screen has not displayed
+    Select Checkbox    emailPrimaryContact
+    Input Text    name=proposalMessage    Proposal is ready to be sent.
+
+Send & verify Proposal
+    [Arguments]    ${proposaltype}
+    Select Checkbox    xpath=(//input[@id='chkBox'])[1]
+    Select Checkbox    xpath=(//input[@id='chkBox'])[2]
+    Select Radio Button    proposalType    ${proposaltype}
+    Click Button    Send Proposal
+    Sleep    2s
+    Wait Until Page Contains    Success    ${SELENIUM_TIMEOUT}    Send Proposal success pop up has not displayed
+    Page Should Contain    Proposal generation and delivery completed.
+    Wait For Condition    return $('#popup_ok:visible').size() == 0;    ${SELENIUM_TIMEOUT}
+
+#Get all plans on Plan selection screen
+#    Sleep    10
+#    ${plansAmountEnr}=    Get Matching Xpath Count    //div[@class="plan"]
+#    ${plansOnPageEnr}    Create List
+#    Set Suite Variable    ${plansOnPageEnr}
+#    :FOR    ${plan}    IN RANGE    ${plansAmountEnr}
+#    \  ${index}=    Evaluate    ${plan}+1
+#    \  ${temp}=    Get Text    xpath=(//div[@class="planName"])[${index}]
+#    \  Append To List    ${plansOnPageEnr}    ${temp}
+#    Log    ${plansOnPageEnr}    WARN
+#
+#Broker selects plan by name    
+#    [Arguments]    ${name}
+#    Get all plans on Plan selection screen
+#    ${tmp}=    Get Index From List    ${plansOnPageEnr}    ${name}
+#    ${index}=    Evaluate    ${tmp}+1
+#    Set Suite Variable    ${selectedPlanNameEnr}    ${name}
+#    Click Element    xpath=(//a[text()='Select Plan'])[${index}]
+#
+################### Other Coverage ###############        
+#
+#Select Other Coverage
+#    [Arguments]    ${coverage}
+#    Wait Until Page Contains Element    name=Application.Previous_Members    ${SELENIUM_TIMEOUT}    Other coverage screen wasn't displayed
+#    Select Radio Button    Application.Previous_Members    ${coverage}
+#
+#Select coverage checkbox for Primary applicant
+#    Wait Until Page Contains Element    xpath=//label[contains(text(),'${userLName}')]     
+#    Click Element    xpath=//label[contains(text(),'${userLName}')]    
+#    
+#Select coverage checkbox for Spouse
+#    Wait Until Page Contains Element    xpath=//label[contains(text(),'${spouseLName}')]
+#    Click Element    xpath=//label[contains(text(),'${spouseLName}')]    
+#
+#Input Other Coverage details
+#    [Arguments]    ${policyID}    ${carrierName}    ${coverageStartDate}
+#    Input Text    Application.Prior_Coverage.Policy_ID    ${policyID}    
+#    Input Text    Application.Prior_Coverage.Carrier_Name    ${carrierName}
+#    Input Text    Application.Prior_Coverage.Start_Date    ${coverageStartDate}
+#
+#Broker selects coverages for an applicant
+#    [Arguments]    ${IBCcoverage}    ${coverage}
+#    Wait Until Page Contains Element    name=Application.Previous_Members    ${SELENIUM_TIMEOUT}    Other coverage screen wasn't displayed
+#    Select Radio Button    Application.Previous_Members    ${IBCcoverage}
+#    Select Radio Button    Application.Have_Previous_Coverage    ${coverage}
+#
+################### Payment Method ###############    
+#
+#Enter Payment details for payment method Check
+#    Wait Until Page Contains    Payment Options    ${SELENIUM_TIMEOUT}    Payment Options screen wasn't displayed
+#    Select From List    name=Application.Payment_Details.Initial_Method    Check
+#    Input Text    name=Application.Initial_Bill.Recipient_Name    ${userFName} \ ${userLName}
+#    Input Text    name=Application.Initial_Bill.Billing_Address_1    Street 1 suite 1
+#    Input Text    name=Application.Initial_Bill.Billing_City    Phila
+#    Select From List    name=Application.Initial_Bill.Billing_State    PA
+#    Input Text    name=Application.Initial_Bill.Billing_Zip    19130    
+#    Click Next Button
+#
+#Enter Payment details for payment method Credit card 
+#    Wait Until Page Contains    Payment Options    ${SELENIUM_TIMEOUT}    Payment Options screen wasn't displayed
+#    Select From List    name=Application.Payment_Details.Initial_Method    Credit Card
+##    Input Text    name=Application.Initial_Bill.Recipient_Name    ${userFName} \ ${userLName}
+##    Input Text    name=Application.Initial_Bill.Billing_Address_1    Street 1 suite 1
+##    Input Text    name=Application.Initial_Bill.Billing_City    Phila
+##    Select From List    name=Application.Initial_Bill.Billing_State    PA
+##    Input Text    name=Application.Initial_Bill.Billing_Zip    19130    
+#    Click Next Button
+#
+#Enter Payment details for payment method Automatic Withdraw from Account
+#    [Arguments]    ${type}    ${bank}    ${accNumber}    ${routingNumber}
+#    Wait Until Page Contains    Payment Options    ${SELENIUM_TIMEOUT}    Payment Options screen wasn't displayed
+#    Select From List    name=Application.Payment_Details.Initial_Method    Automatic Withdraw from Account
+#    Wait Until Page Contains Element    name=Application.Initial_EFT.Account_Type
+#    Select From List    name=Application.Initial_EFT.Account_Type    ${type}
+#    Input Text    name=Application.Initial_EFT.Name_On_Account    ${bank}
+#    Input Text    name=Application.Initial_EFT.Bank_Account_Number    ${accNumber}
+#    Input Text    name=Application.Initial_EFT.Bank_Routing_Number    ${routingNumber}
+#    Sleep    2
+#    Click Next Button
+#    
+################### Submission Method ###############        
+#
+#Verify Info on Submission page
+#    
+#Checking Terms and Conditions
+#    Wait Until Keyword Succeeds    30s    1s    Element Should Be Visible    xpath = //div[@id='pageContainer']//h2[contains(text(),'Terms and Conditions')]
+#    ${Name}=    Get Text    xpath = //div[@class='event-info']//span[@class='content-header top-header']
+#    @{word}=    Split String    ${Name}
+#    log    @{word}[0]
+#    log    @{word}[1]
+#    Select Checkbox    CHECKBOX4C784E9179DBA8A0DFGE
+#    Input Text    EmployeeChange.Signature.First_Name    @{word}[0]
+#    sleep    2s
+#    Input Text    EmployeeChange.Signature.Last_Name    @{word}[1]
+#    sleep    5s
+#    Click Link    Submit
+#    Wait Until Keyword Succeeds    30s    1s    Element Should Be Visible    xpath = //div[@id='appPager']//a[@class='buttonExit']
+#    sleep    5s
+#    Click Link    Close
+#    sleep    5s
+#    
+#Complete Terms and Conditions page    
+#    Click Element    name=Application.Signature.SBC_Provided
+#    Click Element    name=Application.Signature.Agreed_To_Terms
+#    Input Text    name=Application.Signature.First_Name    ${userFName}
+#    Input Text    name=Application.Signature.Last_Name    ${userLName}
+    
+Wait Confirmation page
+    Wait Until Keyword Succeeds    30    5     Wait Until Page Contains    Application Successfully Submitted!
+
+
+Wait a Bit
+    Sleep    2s
+
+Teardown of Test
+    Run Keyword If Test Failed    Log Location
+    Capture Page Screenshot
+    Wait a Bit
+    
+Teardown
+    Run Keyword Unless    "${DEBUG_MODE}"=="true"    Close All Browsers
+    
+#End Test if not QA Environment
+#    Run Keyword If    "${HOST}"!="http://wellmark-qa.ct.com"    Pass Execution    Test ended due to SSO available only in QA Environment.
+    
+
+####################### ACH Keys ##############
+#
+#ACH Broker starts application
+#    Mouse Over    activities
+#    Sleep    2
+#    Mouse Over    applyEnroll
+#    Sleep    2
+#    Click Element    ifpApplyEnroll
+#    Sleep     3
+#    Wait Until Page Contains Element    ZIP    ${SELENIUM_TIMEOUT}    Start Application screen wasn't displayed
+#    Select Radio Button    coverageType    IFP
+#    Input Text    ZIP    07021
+#    Click Next Button
+#        
+#ACH Broker Enters Primary Applicant details, selects Coverage for
+#    [Arguments]    ${coverageFor}
+#    Wait Until Page Contains Element    Application.Coverage_For    ${SELENIUM_TIMEOUT}    Personal Information screen wasn't displayed
+#    Select From List    Application.Coverage_For    ${coverageFor}
+#    Input Text    name=Application.Applicant.Address_1    Address11
+#    Input Text    name=Application.Applicant.City    Phila
+#    Execute Javascript    $("[name='Application.Applicant.Mailing_Address.Address_Same_Primary'][value='Yes']").click()
+#    Input Text    name=Application.Applicant.Home_Phone    1111111111
+#    Input Text    name=Application.Applicant.Ssn    111111111
+#    Input Text    name=Application.Applicant.Dob    11231981
+#    Input Text    name=Application.Applicant.Dob_Child    01012000
+#    Select From List    name=Application.Applicant.Gender    Male
+#    Select From List    name=Application.Applicant.Tobacco    Yes
+#    Run Keyword If    '${coverageFor}'=='My Child'    Enter Legal Guardian Info and update Child info
+#    Execute Javascript    $("[class='buttonNext']").click()    
+#        
