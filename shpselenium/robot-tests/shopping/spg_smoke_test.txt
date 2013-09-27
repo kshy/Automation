@@ -15,12 +15,12 @@ Test Smoke test - Consumer completes shopping - Primary
     ...
     ...    *Applicant combination :* Primary
     ...
-    [Tags]    shopping    smoke     short    consumer
+    [Tags]    shopping    smoke     short    consumer    draft
     
     Given Anonymous User click Find Plan and proceed to Welcome page
     When Wait a Bit
     And Click Link    Get Started
-    And Click Link    Skip & Shop Plans
+#    And Click Link    Skip & Shop Plans
     And Enter demographic data for the primary applicant    53910    1    Leonard    12/15/1972    Male    Yes
     And Click Link    Save & Continue
     And Wait Until Page Contains    How do you want to shop for plans?
@@ -109,60 +109,52 @@ Test Smoke test - Consumer completes shopping - Primary
 #    Click Link    Enroll Now
 #    
     
-#Consumer completes shopping - Primary, Spouse, 2 Children
-#
-#    [Documentation]    
-#    ...
-#    ...    *User Type:* Consumer (Anonymous user)
-#    ...
-#    ...    *Applicant combination :* Primary, Spouse, 2 children
-#    ...
-#    [Tags]    draft
-#    Enter demographic data for the primary applicant    19152    1    Dwayne    01/27/1980    Male    Program to Quit
-#    Click Link    Add Dependent
-#    And Enter demographic data for dependent    1    Sarah    11/17/1984    Spouse    Female    No
-#    Click Link    Add Dependent
-#    And Enter demographic data for dependent    2    Venus    08/31/2004    Child    Female    No
-#    Click Link    Add Dependent
-#    And Enter demographic data for dependent    3    Josh    09/01/2009    Child    Male    No
-#    And Click Link    Save & Continue
-#    Then Check that Subsidy check page is opened
-#    And Click Link    Check Now
-#    Then Check that Subsidy Eligibility check page is opened
-#    And Select Current Health Insurance radio button    Yes
-#    Page Should Contain    Not Likely Eligible
-#    And Click Link    Save & Continue
-#    Then Check that Shopping Method page is opened
-#    And Click Link    Guide Me
-#    Then Check that My Costs page is opened
-#    And Select my costs radio button    Pay less each month
-#    And Select deductible    $2,000
-#    And Select doctor radio button    Yes
-#    And Select feature    In-network coverage across the country
-#    And Select feature    Tax-savings advantage/Health Savings Account (HSA) eligible
-#    And Click Link    Save & Continue
-#    And Select Primary applicant health    Not Healthy
-#    And Select Dependent tab    1
-#    And Select Dependent health    Moderately Healthy
-#    And Select Dependent tab    2
-#    And Select Dependent health    Healthy
-#    And Select Dependent tab    3
-#    And Select Dependent health    Healthy
-#    And Click Link    Save & Continue    
-#    Check that Recommendations page is opened
-#    Then Verify My Costs selection on summary page
-#    And Verify Deductible selection on summary page
-#    And Verify Doctor option selection on summary page
-#    And Verify selected features on a summary page
-#    And Verify Primary applicant health selection on summary page
-#    And Verify dependent health selection on summary page
-#    And Navigate to plans from summary page
-#    Then Check that See & Compare plans page is opened
-#    And Switch to full view
-#    And Add plan to cart    1
-#    Then Check that added plan is displayed in the cart
-#    Click Link    View Cart & Enroll
-#    Click Link    Enroll Now
+Consumer completes shopping - Primary, Spouse, 2 Children
+
+    [Documentation]    
+    ...
+    ...    *User Type:* Consumer (Anonymous user)
+    ...
+    ...    *Applicant combination :* Primary, Spouse, 2 children
+    ...
+    [Tags]    shopping    consumer    short
+    
+    Given Anonymous User click Find Plan and proceed to Welcome page
+    When Wait a Bit
+    And Click Link    Get Started
+#    And Click Link    Skip & Shop Plans
+    And Enter demographic data for the primary applicant    53910    1    Brandan    12/15/1972    Male    Yes
+    Click Link    Add Dependent
+    And Enter demographic data for dependent    1    Veronica    11/17/1998    Spouse    Female    No
+    Click Link    Add Dependent
+    And Enter demographic data for dependent    2    Lily    08/31/2013    Child    Female    No
+    Click Link    Add Dependent
+    And Enter demographic data for dependent    3    Robert    09/01/2009    Child    Male    No
+    And Click Link    Save & Continue
+    And Click Link    Select Browse
+    And Wait a Bit
+    And Switch to small view
+    And Click Add to Cart for plan    Classic $5,500 HDHP
+    And Wait Until Page Contains    1 Plan Added to Cart
+    And Wait a Bit
+    And Click Link    View Cart & Enroll
+    And Wait Until Page Contains    Items In Your Cart
+    And Wait a Bit
+    And Click Link    Enroll Now
+    
+    #Application
+    And Enter details in Prior To Applying page as consumer    Online    No
+    And Wait Until Page Contains    Application Checklist
+    And Wait a Bit
+    And Click Link    Start Application
+    And Enter Primary Applicant details - Consumer    My Family
+    And Enter details in Family Members page   3
+    And Enter details in Prior Coverage page
+    And Enter details in Payment Options page
+    And Pass Verify Application page
+    And Pass Authorized Representative page
+    And Enter details in Submit Application on Behalf of Applicant page
+    Then Wait Confirmation page
 
 Consumer completes shopping - Child Only
     [Documentation]    
@@ -171,11 +163,11 @@ Consumer completes shopping - Child Only
     ...
     ...    *Applicant combination :* Child Only
     ...
-    [Tags]    shopping    smoke     long    consumer
+    [Tags]    shopping    smoke     long    consumer    draft
     
     Given Anonymous User click Find Plan and proceed to Welcome page
     When Click Link    Get Started
-    And Click Link    Skip & Shop Plans
+#    And Click Link    Skip & Shop Plans
     And Enter demographic data for the primary applicant    53910    1    Josephine    03/20/2011    Female    No
     And Click Link    Save & Continue
     And Wait Until Page Contains    How do you want to shop for plans?
@@ -216,16 +208,17 @@ Test Smoke test - Producer sends proposal and completes shopping - Primary
     ...
     ...    *Applicant combination :* Primary
     ...
-    [Tags]    shopping    smoke     short    agent
+    [Tags]    shopping    smoke     short    agent    draft
     
     Given Broker logs in to application
     When Selects IFP Case
     And Enter details in Create IFP Case page   53910
     And Wait Until Page Contains    Case Summary - Individual
     And Click Link    New Business
-    And Click Link    Traditional Quote
+#    And Click Link    Traditional Quote
+    And Click Button     Create Quote
     And Click Link Get Started
-    And Click Link    Skip & Shop Plans
+#    And Click Link    Skip & Shop Plans
     And Enter demographic data for the primary applicant    53910    1    Leonard    12/15/1972    Male    Yes
     And Click Link    Save & Continue
     And Wait Until Page Contains    How do you want to shop for plans?
@@ -236,10 +229,11 @@ Test Smoke test - Producer sends proposal and completes shopping - Primary
     And Click Add to Quote for plan    Classic $1,000-20%
     And Click Add to Quote for plan    Classic $2,000-30%
     And Finalize Quote
+    And Click Link    Save & Create Case
     And Wait Until Page Contains    Quote Summary
     And Click Button    Generate Proposal
     And Generate Proposal
-    And Send & verify Proposal    HTML
+    And Send & verify Proposal    PDF
     And Wait a Bit
     And Selects Plan By Name    Classic $5,500 HDHP
     And Click Button    Apply
@@ -270,9 +264,10 @@ Producer completes shopping - Primary
     And Enter details in Create IFP Case page   53910
     And Wait Until Page Contains    Case Summary - Individual
     And Click Link    New Business
-    And Click Link    Traditional Quote
+#    And Click Link    Traditional Quote
+    And Click Button     Create Quote
     And Click Link Get Started
-    And Click Link    Skip & Shop Plans
+#    And Click Link    Skip & Shop Plans
     And Enter demographic data for the primary applicant    53910    1    Leonard    12/15/1972    Male    Yes
     And Click Link    Save & Continue
     And Wait Until Page Contains    How do you want to shop for plans?

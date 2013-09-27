@@ -58,6 +58,9 @@ Initialize Variables
     ${randStr}=    Generate Random String    6    [LETTERS]
     ${randNbr}=    Generate Random String    6    [NUMBERS]
     ${SSNcode}=    Generate Random String    9    [NUMBERS]
+    ${SSNcode0}=    Generate Random String    9    [NUMBERS]
+    ${SSNcode1}=    Generate Random String    9    [NUMBERS]
+    ${SSNcode2}=    Generate Random String    9    [NUMBERS]
     ${ifpCaseName}=    Catenate    IFPCaseAuto${yyyy}${mm}${dd}${hh}${min}${ss}
     ${userFName}=    Catenate    FN${randStr}
     ${userLName}=    Catenate    LN${randStr}
@@ -79,6 +82,9 @@ Initialize Variables
     Set Test Variable    ${zipCode}
     Set Test Variable    ${randNbr}
     Set Test Variable    ${SSNcode}
+    Set Test Variable    ${SSNcode0}
+    Set Test Variable    ${SSNcode1}
+    Set Test Variable    ${SSNcode2}
     Set Suite Variable    ${fname2}
     Set Suite Variable    ${fname3}
     Set Suite Variable    ${selected_features}
@@ -1300,13 +1306,21 @@ Enter Primary Applicant details - Consumer
     #Select From List    name=Application.Applicant.Marital_Status    Single
     #Execute Javascript    $("[name='Application.Applicant.Disabled'][value='No']").click()
     #Execute Javascript    $("[name='Application.Applicant.Medicare_Eligible'][value='No']").click()
-    #Execute Javascript    $("[class='buttonNext']").click()
-    Click Link    Next
+    Execute Javascript    $("[class='buttonNext']").click()
 
 Pass Family Members page
     Wait Until Page Contains    Family Members    ${APPCONF_LOAD_TIMEOUT}    Family Members screen has not displayed
     Sleep    3
-    Click Link    Next
+    Execute Javascript    $("[class='buttonNext']").click()
+
+Enter details in Family Members page
+    [Arguments]    ${dependentcount}
+    Wait Until Page Contains Element    name=Application.Dependent[0].Last_Name    ${APPCONF_LOAD_TIMEOUT}    Family Members screen has not displayed
+    :FOR    ${index}    IN RANGE    0    ${dependentcount}
+    \    Input Text    name=Application.Dependent[${index}].Last_Name    ${userLName}
+    \    Execute Javascript    $("[name='Application.Dependent[${index}].Address_Same_Primary'][value='Yes']").click()
+    \    Input Text    name=Application.Dependent[${index}].Ssn    ${SSNcode${index}}
+    Execute Javascript    $("[class='buttonNext']").click()
 
 Pass Primary Care Provider page
     Wait Until Page Contains    Primary Care Provider    ${APPCONF_LOAD_TIMEOUT}    Primary Care Provider screen has not displayed
@@ -1316,7 +1330,7 @@ Pass Primary Care Provider page
 Enter details in Prior Coverage page
     Wait Until Page Contains Element    name=Application.Previous_Members    ${APPCONF_LOAD_TIMEOUT}    Primary Care Provider screen has not displayed
     Select Radio Button    Application.Previous_Members    No
-    Click Link    Next
+    Execute Javascript    $("[class='buttonNext']").click()
 
 Verify that Plan is selected
     [Arguments]    ${planName}
@@ -1361,19 +1375,29 @@ Pass Authorized Representative page
 
 Enter details in Submit Application on Behalf of Applicant page
     [Arguments]    ${fname}=${userFName}    ${mname}=${EMPTY}    ${lname}=${userLName}
-    ${isApNdisplayed}=    Get Matching Xpath Count     //input[@name='Application.Signature.Incarcerated_Name']
-    ${isCNdisplayed}=    Get Matching Xpath Count     //input[@name='Application.Signature.Confirm_First_Name']
-    Run Keyword If    '${isApNdisplayed}'=='1'    Input Text    name=Application.Signature.Incarcerated_Name    ${userFName} ${userLName}
+#    ${isApNdisplayed}=    Get Matching Xpath Count     //input[@name='Application.Signature.Incarcerated_Name']
+    ${isCNdisplayed}=    Get Matching Xpath Count     //input[@name='Application.Signature.Confirm_First_Name' and not(@disabled)]
+    ${isDSdisplayed}=    Get Matching Xpath Count     //input[@name='Application.Dependent[0].Signature.Agreed_To_Terms']
+#    Run Keyword If    '${isApNdisplayed}'=='1'    Select Checkbox    name=Application.Signature.Incarcerated_Name
 #    Select Checkbox    Application.Signature.SBC_Provided
-    Select Checkbox    Application.Signature.Agreed_To_Terms
-    Input Text    name=Application.Signature.First_Name    ${fname}
-    Input Text    name=Application.Signature.Middle_Initial    ${mname}
-    Input Text    name=Application.Signature.Last_Name    ${lname}
-    Run Keyword If    '${isCNdisplayed}'=='1'    Input Text    name=Application.Signature.Confirm_First_Name    ${fname}
-    Run Keyword If    '${isCNdisplayed}'=='1'    Input Text    name=Application.Signature.Confirm_Middle_Initial    ${mname}
-    Run Keyword If    '${isCNdisplayed}'=='1'    Input Text    name=Application.Signature.Confirm_Last_Name    ${lname}
+    Select Checkbox    xpath=//input[@name='Application.Signature.Agreed_To_Terms' and not(@disabled)]
+    Input Text    xpath=//input[@name='Application.Signature.First_Name' and not(@disabled)]    ${fname}
+    Input Text    xpath=//input[@name='Application.Signature.Middle_Initial' and not(@disabled)]    ${mname}
+    Input Text    xpath=//input[@name='Application.Signature.Last_Name' and not(@disabled)]    ${lname}
+    Run Keyword If    '${isCNdisplayed}'=='1'    Input Text    xpath=//input[@name='Application.Signature.Confirm_First_Name' and not(@disabled)]    ${fname}
+    Run Keyword If    '${isCNdisplayed}'=='1'    Input Text    xpath=//input[@name='Application.Signature.Confirm_Middle_Initial' and not(@disabled)]    ${mname}
+    Run Keyword If    '${isCNdisplayed}'=='1'    Input Text    xpath=//input[@name='Application.Signature.Confirm_Last_Name' and not(@disabled)]    ${lname}
+    Run Keyword If    '${isDSdisplayed}'=='1'    Fill Signature for Spouse
     Click Link    Submit Application
-    
+
+Fill Signature for Spouse
+    ${spousename}=    Get From List    ${depnames}    0
+    Select Checkbox    xpath=//input[@name='Application.Dependent[0].Signature.Agreed_To_Terms' and not(@disabled)]
+    Input Text    name=Application.Dependent[0].Signature.First_Name    ${spousename}
+    Input Text    name=Application.Dependent[0].Signature.Last_Name    ${userLName}
+    Input Text    name=Application.Dependent[0].Signature.Confirm_First_Name    ${spousename}
+    Input Text    name=Application.Dependent[0].Signature.Confirm_Last_Name    ${userLName}
+
 #Verify personal data prepopulated from Shopping
 #    Wait Until Page Contains Element    Application.Coverage_For    ${SELENIUM_TIMEOUT}    Personal Information screen wasn't displayed
 #    List Selection Should Be    Application.Coverage_For    My Family
@@ -1622,7 +1646,7 @@ Send & verify Proposal
 #    Input Text    name=Application.Signature.Last_Name    ${userLName}
     
 Wait Confirmation page
-    Wait Until Keyword Succeeds    30    5     Wait Until Page Contains    Application Successfully Submitted!
+    Wait Until Keyword Succeeds    60    5     Wait Until Page Contains    Application Successfully Submitted!
 
 
 Wait a Bit
