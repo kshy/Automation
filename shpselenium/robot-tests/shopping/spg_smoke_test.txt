@@ -15,7 +15,7 @@ Test Smoke test - Consumer completes shopping - Primary
     ...
     ...    *Applicant combination :* Primary
     ...
-    [Tags]    shopping    smoke     short    consumer    draft
+    [Tags]    shopping    smoke     short    consumer
     
     Given Anonymous User click Find Plan and proceed to Welcome page
     When Wait a Bit
@@ -39,6 +39,7 @@ Test Smoke test - Consumer completes shopping - Primary
     And Enter details in Prior To Applying page as consumer    Online    No
     And Wait Until Page Contains    Application Checklist
     And Wait a Bit
+    And Verify that selected plan is in Cart
     And Click Link    Start Application
     And Enter Primary Applicant details - Consumer    Myself
     And Pass Family Members page
@@ -48,6 +49,7 @@ Test Smoke test - Consumer completes shopping - Primary
     And Pass Verify Application page
     And Pass Authorized Representative page
     And Enter details in Submit Application on Behalf of Applicant page
+    And Wait a Bit
     Then Wait Confirmation page
     
 #Consumer completes shopping - Primary
@@ -117,7 +119,7 @@ Consumer completes shopping - Primary, Spouse, 2 Children
     ...
     ...    *Applicant combination :* Primary, Spouse, 2 children
     ...
-    [Tags]    shopping    consumer    short
+    [Tags]    shopping    consumer
     
     Given Anonymous User click Find Plan and proceed to Welcome page
     When Wait a Bit
@@ -139,6 +141,7 @@ Consumer completes shopping - Primary, Spouse, 2 Children
     And Wait a Bit
     And Click Link    View Cart & Enroll
     And Wait Until Page Contains    Items In Your Cart
+    And Add dental rider to plan    Low     Classic $5,500 HDHP
     And Wait a Bit
     And Click Link    Enroll Now
     
@@ -146,6 +149,7 @@ Consumer completes shopping - Primary, Spouse, 2 Children
     And Enter details in Prior To Applying page as consumer    Online    No
     And Wait Until Page Contains    Application Checklist
     And Wait a Bit
+    And Verify that selected plan is in Cart
     And Click Link    Start Application
     And Enter Primary Applicant details - Consumer    My Family
     And Enter details in Family Members page   3
@@ -163,12 +167,12 @@ Consumer completes shopping - Child Only
     ...
     ...    *Applicant combination :* Child Only
     ...
-    [Tags]    shopping    smoke     long    consumer    draft
+    [Tags]    shopping    smoke     long    consumer
     
     Given Anonymous User click Find Plan and proceed to Welcome page
     When Click Link    Get Started
 #    And Click Link    Skip & Shop Plans
-    And Enter demographic data for the primary applicant    53910    1    Josephine    03/20/2011    Female    No
+    And Enter demographic data for the primary applicant    54805    1    Josephine    03/20/2011    Female    No
     And Click Link    Save & Continue
     And Wait Until Page Contains    How do you want to shop for plans?
     And Click Link    Select Browse
@@ -179,26 +183,24 @@ Consumer completes shopping - Child Only
     And Wait a Bit
     And Click Link    View Cart & Enroll
     And Wait Until Page Contains    Items In Your Cart
+    And Add dental rider to plan    High     Classic $3,000 HDHP
     And Wait a Bit
     And Click Link    Enroll Now
     #Application
     And Enter details in Prior To Applying page as consumer    Online    No
     And Wait Until Page Contains    Application Checklist
     And Wait a Bit
+    And Verify that selected plan is in Cart
     And Click Link    Start Application
     And Enter Primary Applicant details - Consumer    My Child
     And Pass Family Members page
 #    And Pass Primary Care Provider page
     And Enter details in Prior Coverage page
-#    And Wait Until Page Contains    Plan Selection
-#    And Verify that Plan is selected    myBlue HSA(SM) 5300
-#    And Click Link    Continue
-#    And Enter details in Current Other Coverage page
     And Enter details in Payment Options page
 #    And Enter details in Employer Payment Arrangements page
     And Pass Verify Application page
     And Pass Authorized Representative page
-    And Enter details in Submit Application on Behalf of Applicant page
+    And Enter details in Submit Application on Behalf of Applicant page    ${fname2}    \    ${userLname}
     Then Wait Confirmation page
 
 Test Smoke test - Producer sends proposal and completes shopping - Primary
@@ -208,7 +210,7 @@ Test Smoke test - Producer sends proposal and completes shopping - Primary
     ...
     ...    *Applicant combination :* Primary
     ...
-    [Tags]    shopping    smoke     short    agent    draft
+    [Tags]    shopping    smoke     short    agent
     
     Given Broker logs in to application
     When Selects IFP Case
@@ -229,17 +231,21 @@ Test Smoke test - Producer sends proposal and completes shopping - Primary
     And Click Add to Quote for plan    Classic $1,000-20%
     And Click Add to Quote for plan    Classic $2,000-30%
     And Finalize Quote
+    And Add dental rider to plan    Low     Classic $1,000-20%
+    And Add dental rider to plan    High     Classic $5,500 HDHP
     And Click Link    Save & Create Case
     And Wait Until Page Contains    Quote Summary
     And Click Button    Generate Proposal
     And Generate Proposal
     And Send & verify Proposal    PDF
+    And Click Element    xpath=//a[contains(text(),'Quote Summary')]
     And Wait a Bit
     And Selects Plan By Name    Classic $5,500 HDHP
     And Click Button    Apply
     And Broker completes Prior To Applying page    Broker Complete Online
     And Wait Until Page Contains    Application Checklist
     And Wait a Bit
+    And Verify that selected plan is in Cart
     And Click Link    Start Application
     And Broker Enters Primary Applicant details, selects Coverage for     Myself
     And Pass Family Members page
@@ -295,3 +301,55 @@ Producer completes shopping - Primary
     And Enter details in Submit Application on Behalf of Applicant page    Bob    B    Broker
     Then Wait Confirmation page
 
+Producer completes shopping - Family of 4
+    [Documentation]    
+    ...
+    ...    *User Type:* Broker
+    ...
+    ...    *Applicant combination :* Primary
+    ...
+    [Tags]    shopping    smoke     long    agent    draft
+    
+    Given Broker logs in to application
+    When Selects IFP Case
+    And Enter details in Create IFP Case page   54805
+    And Wait Until Page Contains    Case Summary - Individual
+    And Click Link    New Business
+#    And Click Link    Traditional Quote
+    And Click Button     Create Quote
+    And Click Link Get Started
+#    And Click Link    Skip & Shop Plans
+    And Enter demographic data for the primary applicant    54805    1    Leonard    12/15/1972    Male    Yes
+    Click Link    Add Dependent
+    And Enter demographic data for dependent    1    Veronica    11/17/1998    Spouse    Female    No
+    Click Link    Add Dependent
+    And Enter demographic data for dependent    2    Lily    08/31/2013    Child    Female    No
+    Click Link    Add Dependent
+    And Enter demographic data for dependent    3    Robert    09/01/2009    Child    Male    No
+    And Click Link    Save & Continue
+    And Click Link    Select Browse
+    And Wait a Bit
+    And Switch to small view
+    And Click Add to Cart for plan    Classic $1,800 -20%
+    And Wait Until Page Contains    1 Plan Added to Cart
+    And Wait a Bit
+    And Click Link    View Cart & Enroll
+    And Wait Until Page Contains    Items In Your Cart
+    And Add dental rider to plan    Low     Classic $1,800 -20%
+    And Wait a Bit
+    And Click Link    Enroll Now
+    
+    #Application
+    And Broker completes Prior To Applying page    Broker Complete Online
+    And Wait Until Page Contains    Application Checklist
+    And Wait a Bit
+    And Verify that selected plan is in Cart
+    And Click Link    Start Application
+    And Broker Enters Primary Applicant details, selects Coverage for     My Family
+    And Enter details in Family Members page   3
+    And Enter details in Prior Coverage page
+    And Enter details in Payment Options page
+    And Pass Verify Application page
+    And Pass Authorized Representative page
+    And Enter details in Submit Application on Behalf of Applicant page
+    Then Wait Confirmation page

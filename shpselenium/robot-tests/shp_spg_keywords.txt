@@ -136,6 +136,7 @@ Enter demographic data for the primary applicant
     Set Global Variable    ${selfDOB}    ${date}
     Set Global Variable    ${selfGender}    ${gender}
     Set Global Variable    ${selfTobacco}    ${tobacco}
+    Set Global Variable    ${primaryid}    Get Value    xpath=//td[@data-id]
 
 
 Enter details in Create IFP Case page
@@ -260,6 +261,8 @@ Enter details in Create IFP Case page
     
 Enter demographic data for dependent
     [Arguments]    ${dep_number}    ${fname2}    ${date2}    ${relation}    ${gender}    ${tobacco}
+    Convert To Integer    ${primaryid}
+    ${dep_number}=    Evaluate    ${primaryid}+${dep_number}
     Wait Until Page Contains Element    xpath=//td[@data-id='${dep_number}']    ${SELENIUM_TIMEOUT}    Dependent was not added
     Input Text    xpath=//td[@data-id='${dep_number}']/*[@name='name.first']    ${fname2}
     Select From List    xpath=//td[@data-id='${dep_number}']/*[@name='memberRelationship']    ${relation}
@@ -935,6 +938,11 @@ Add plan to cart
     Set Suite Variable    ${add_plan_name}
     Click Element    xpath=(//a[@class='btn_primary plan-select _selectLink'])[${add_plan_index}]
 
+Add dental rider to plan
+#${dental}   Low    High
+    [Arguments]    ${dental}    ${planname}
+    Click Element    xpath=//div[@class='benefit-section Medical' and *[contains(.,'${planname}')]]/following-sibling::div/div[@class='plan-card' and div[contains(text(),'${dental}')]]//a[contains(text(),'Add')]
+
 Check that added plan is displayed in the cart
     Wait Until Page Contains    Items In Your Cart
     Page Should Contain    ${add_plan_name}    
@@ -1005,6 +1013,7 @@ Select plan(s) small view
 Click Add to Cart for plan
     [Arguments]    ${planName}
     Click Element    xpath=//div[@class='plan-card-details' and a[contains(text(),'${planName}')]]//a[text()='Add to Cart']
+    Set Global Variable    ${selected plan}    ${planName}
     
 Click Add to Quote for plan
     [Arguments]    ${planName}
@@ -1123,7 +1132,7 @@ Selects IFP Case
     
 Finalize Quote
     Click Element    xpath=//a[@class='quote-receipt _quoteShow']
-    Click Link    Finalize quote
+    Click Link    Finalize Quote
     Click Link    ×
     
 Click Link Get Started
@@ -1519,6 +1528,7 @@ Enter Legal Guardian Info and update Coverage selection
 Selects Plan By Name
     [Arguments]    ${planName}
     Select Checkbox    xpath=//tr[td[a[contains(text(),'${planName}')]]]//input[@type='checkbox']
+    Set Global Variable    ${selectedplan}    ${planName}
 #    log    ${planName}    WARN
 #    Append To List    ${plan_val}    ${planName}
 
@@ -1537,6 +1547,9 @@ Send & verify Proposal
     Wait Until Page Contains    Success    ${SELENIUM_TIMEOUT}    Send Proposal success pop up has not displayed
     Page Should Contain    Proposal generation and delivery completed.
     Wait For Condition    return $('#popup_ok:visible').size() == 0;    ${SELENIUM_TIMEOUT}
+    
+Verify that selected plan is in Cart
+    Wait Until Keyword Succeeds    30    5    Page Should Contain Element    xpath=//div[@id='plans']//*[contains(text(),'${selectedplan}')]
 
 #Get all plans on Plan selection screen
 #    Sleep    10
@@ -1647,7 +1660,6 @@ Send & verify Proposal
     
 Wait Confirmation page
     Wait Until Keyword Succeeds    60    5     Wait Until Page Contains    Application Successfully Submitted!
-
 
 Wait a Bit
     Sleep    2s

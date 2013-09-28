@@ -293,7 +293,7 @@ Enter details in Certification page
     Click Link    Submit
 
 Pass Employer Submission Confirmation page
-    Wait Until Keyword Succeeds    30    5    Page Should Contain Element    xpath=//a[contains(text(),'Return to Manage Enrollment')]
+    Wait Until Keyword Succeeds    60    5    Page Should Contain Element    xpath=//a[contains(text(),'Return to Manage Enrollment')]
     Page Should Contain    Submission Confirmation
     Sleep    2
     Click Link    Return to Manage Enrollment
@@ -360,7 +360,7 @@ Pass Application Summary page
     Wait Until Keyword Succeeds    60    5    Execute Javascript    $('a[class*="buttonNext"]').click()
     
 Pass Prior to Applying page
-    Wait Until Keyword Succeeds    30    5    Page Should Contain Element    name=Enrollment.Waive_All_Coverage    ${APPCONF_LOAD_TIMEOUT}
+    Wait Until Keyword Succeeds    60    5    Page Should Contain Element    name=Enrollment.Waive_All_Coverage    ${APPCONF_LOAD_TIMEOUT}
     Select Radio Button    Enrollment.Waive_All_Coverage    No
     Click Element    xpath=//a[contains(text(),'Start Application')] 
     
