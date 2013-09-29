@@ -20,7 +20,7 @@ Test Smoke test - Consumer completes shopping - Primary
     Given Anonymous User click Find Plan and proceed to Welcome page
     When Wait a Bit
     And Click Link    Get Started
-#    And Click Link    Skip & Shop Plans
+    And Click Link    Skip & Shop Plans
     And Enter demographic data for the primary applicant    53910    1    Leonard    12/15/1972    Male    Yes
     And Click Link    Save & Continue
     And Wait Until Page Contains    How do you want to shop for plans?
@@ -124,7 +124,7 @@ Consumer completes shopping - Primary, Spouse, 2 Children
     Given Anonymous User click Find Plan and proceed to Welcome page
     When Wait a Bit
     And Click Link    Get Started
-#    And Click Link    Skip & Shop Plans
+    And Click Link    Skip & Shop Plans
     And Enter demographic data for the primary applicant    53910    1    Brandan    12/15/1972    Male    Yes
     Click Link    Add Dependent
     And Enter demographic data for dependent    1    Veronica    11/17/1998    Spouse    Female    No
@@ -171,7 +171,7 @@ Consumer completes shopping - Child Only
     
     Given Anonymous User click Find Plan and proceed to Welcome page
     When Click Link    Get Started
-#    And Click Link    Skip & Shop Plans
+    And Click Link    Skip & Shop Plans
     And Enter demographic data for the primary applicant    54805    1    Josephine    03/20/2011    Female    No
     And Click Link    Save & Continue
     And Wait Until Page Contains    How do you want to shop for plans?
@@ -217,10 +217,10 @@ Test Smoke test - Producer sends proposal and completes shopping - Primary
     And Enter details in Create IFP Case page   53910
     And Wait Until Page Contains    Case Summary - Individual
     And Click Link    New Business
-#    And Click Link    Traditional Quote
-    And Click Button     Create Quote
+    And Click Link    Traditional Quote
+#    And Click Button     Create Quote
     And Click Link Get Started
-#    And Click Link    Skip & Shop Plans
+    And Click Link    Skip & Shop Plans
     And Enter demographic data for the primary applicant    53910    1    Leonard    12/15/1972    Male    Yes
     And Click Link    Save & Continue
     And Wait Until Page Contains    How do you want to shop for plans?
@@ -270,10 +270,10 @@ Producer completes shopping - Primary
     And Enter details in Create IFP Case page   53910
     And Wait Until Page Contains    Case Summary - Individual
     And Click Link    New Business
-#    And Click Link    Traditional Quote
-    And Click Button     Create Quote
+    And Click Link    Traditional Quote
+#    And Click Button     Create Quote
     And Click Link Get Started
-#    And Click Link    Skip & Shop Plans
+    And Click Link    Skip & Shop Plans
     And Enter demographic data for the primary applicant    53910    1    Leonard    12/15/1972    Male    Yes
     And Click Link    Save & Continue
     And Wait Until Page Contains    How do you want to shop for plans?
@@ -315,10 +315,10 @@ Producer completes shopping - Family of 4
     And Enter details in Create IFP Case page   54805
     And Wait Until Page Contains    Case Summary - Individual
     And Click Link    New Business
-#    And Click Link    Traditional Quote
-    And Click Button     Create Quote
+    And Click Link    Traditional Quote
+#    And Click Button     Create Quote
     And Click Link Get Started
-#    And Click Link    Skip & Shop Plans
+    And Click Link    Skip & Shop Plans
     And Enter demographic data for the primary applicant    54805    1    Leonard    12/15/1972    Male    Yes
     Click Link    Add Dependent
     And Enter demographic data for dependent    1    Veronica    11/17/1998    Spouse    Female    No

@@ -136,8 +136,6 @@ Enter demographic data for the primary applicant
     Set Global Variable    ${selfDOB}    ${date}
     Set Global Variable    ${selfGender}    ${gender}
     Set Global Variable    ${selfTobacco}    ${tobacco}
-    Set Global Variable    ${primaryid}    Get Value    xpath=//td[@data-id]
-
 
 Enter details in Create IFP Case page
     [Arguments]    ${zip}
@@ -261,8 +259,6 @@ Enter details in Create IFP Case page
     
 Enter demographic data for dependent
     [Arguments]    ${dep_number}    ${fname2}    ${date2}    ${relation}    ${gender}    ${tobacco}
-    Convert To Integer    ${primaryid}
-    ${dep_number}=    Evaluate    ${primaryid}+${dep_number}
     Wait Until Page Contains Element    xpath=//td[@data-id='${dep_number}']    ${SELENIUM_TIMEOUT}    Dependent was not added
     Input Text    xpath=//td[@data-id='${dep_number}']/*[@name='name.first']    ${fname2}
     Select From List    xpath=//td[@data-id='${dep_number}']/*[@name='memberRelationship']    ${relation}
