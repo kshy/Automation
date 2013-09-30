@@ -1,0 +1,76 @@
+*** Settings ***
+Documentation     IFP Shopping Smoke Testcases for IA
+Suite Setup       Setup
+Suite Teardown    Teardown
+Test Setup        Initialize Variables
+Test Teardown     Wait A Bit
+Resource          ifpshopping_keywords.txt
+
+*** Test Cases ***
+Test Anonymous SHOP Flow - Select Check Now And Seek Guidance
+    [Documentation]    *Test Objective*: The purpose is to verify IFP Shopping flow when Anonymous user check the eligibility and seek guidance, see available plans and then add to cart and verify decide & enroll screen.
+    [Tags]    smoke
+    Given A Consumer
+    When SHOP On Checking The Eligibility and Taking Guidance
+    Then Plans Can Be Viewed And Added To Shopping Cart
+
+Test Anonymous SHOP Flow - Select Shop Plans And Browse All Plans
+    [Documentation]    *Test Objective*: The purpose is to verify IFP Shopping flow when anonymous user Select SHOP for plans and the browse for all plans, see available plans and then add to cart and verify decide & enroll screen.
+    [Tags]    smoke
+    Given A Consumer
+    When SHOP On Selecting The Shop For Plans and Browse All Plans
+    Then Plans Can Be Viewed And Added To Shopping Cart
+
+Test Agent SHOP Flow - Select Check Now And Seek Guidance
+    [Documentation]    *Test Objective*: The purpose is to verify IFP Shopping flow when Agent check the eligibility and seek guidance, see available plans and then add to cart and verify decide & enroll screen.
+    [Tags]    smoke
+    Given A Agent
+    When SHOP On Checking The Eligibility and Taking Guidance
+    Then Plans Can Be Viewed And Added To Shopping Cart
+
+Test Agent SHOP Flow - Select Shop Plans And Browse All Plans
+    [Documentation]    *Test Objective*: The purpose is to verify IFP Shopping flow when Agent Select SHOP for plans and the browse for all plans, see available plans and then add to cart and verify decide & enroll screen.
+    [Tags]
+    Given A Agent
+    When SHOP On Selecting The Shop For Plans and Browse All Plans
+    Then Plans Can Be Viewed And Added To Shopping Cart
+
+Test Create Registered User
+    [Documentation]    *Test Objective*: The purpose is to create user for tests that require registered user.
+    [Tags]
+    Given A Consumer
+    When SHOP On Selecting The Shop For Plans and Browse All Plans
+    Then Plans Can Be Viewed And Added To Shopping Cart
+    And Click Enroll Now
+    Comment    And Enter details in Prior To Applying page as consumer    Online    No
+    And Consumer Enter Details In Prior To Applying Screen
+    ${registeredUserId}=    Set Variable    ${userName}
+    ${registeredUserFName}=    Set Variable    ${userFName}
+    ${registeredUserLName}=    Set Variable    ${userLName}
+    Set Global Variable    ${registeredUserId}
+    Set Global Variable    ${registeredUserFName}
+    Set Global Variable    ${registeredUserLName}
+    And Verify Application Checklist
+    And Logs Out From The Application
+
+Test Registered SHOP Flow - Select Check Now And Seek Guidance
+    [Documentation]    *Test Objective*: The purpose is to verify IFP Shopping flow when Registered user check the eligibility and seek guidance, see available plans and then add to cart and verify decide & enroll screen.
+    [Tags]
+    Given Registered Consumer Shop For Plan
+    Registered when SHOP On Checking The Eligibility and Taking Guidance
+    Then Plans Can Be Viewed And Added To Shopping Cart
+    And Logs Out From The Application
+
+Test Registered SHOP Flow - Select Shop Plans And Browse All Plans
+    [Documentation]    *Test Objective*: The purpose is to verify IFP Shopping flow when registered user Select SHOP for plans and the browse for all plans, see available plans and then add to cart and verify decide & enroll screen.
+    [Tags]
+    Given Registered Consumer Shop For Plan
+    When SHOP On Selecting The Shop For Plans and Browse All Plans
+    Then Plans Can Be Viewed And Added To Shopping Cart
+    And Logs Out From The Application
+
+*** Keywords ***
+Registered when SHOP On Checking The Eligibility and Taking Guidance
+    Enter Demographic Details
+    How Do You Want To Shop For Plans?    Select Guide Me
+    Plans Are There

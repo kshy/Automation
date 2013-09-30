@@ -1,4 +1,4 @@
---variable  HOST:https://securityhealth-stg.healthinsurance-asp.com
+--variable  HOST:http://vshpwksqa01.ct.com
 --variable  HOST_EXCL:https://vshpwksuat02.ct.com
 --variable  HOST_EXCL:https://shpuat01.connecture.com
 --variable  CONTEXT_ROOT:/shp

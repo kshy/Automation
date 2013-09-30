@@ -426,8 +426,10 @@ Enter details in Census page through Import file
     ${isLNdisplayed}=    Get Matching Xpath Count     //input[@name='showLNCol']
     Run Keyword If    '${isFNdisplayed}'=='1'    Select Checkbox    name=showFNCol
     Run Keyword If    '${isLNdisplayed}'=='1'    Select Checkbox    name=showLNCol
+    ${filepath}=    Catenate    SEPARATOR=\\    ${CURDIR}    resources\\census    ${filename}
+#    log    ${filepath}    WARN
     Click Link    Import File
-    Choose File    upload    F:\\shp\\shp\\shpselenium\\census\\${filename}
+    Choose File    upload    ${filepath}
     Click Button    Import
     Wait Until Page Contains Element    xpath=//button[@value='Continue']    ${APPCONF_LOAD_TIMEOUT}     Census takes more than ${APPCONF_LOAD_TIMEOUT} to upload or wrong page displayed
     Click Button    Continue
@@ -535,7 +537,7 @@ Enter details in Family Member for Child
     Input Text    name=dependentInfo.dependents[${ChildNumber}].birthDayDate    10/10/1999
     Input Text    name=dependentInfo.dependents[${ChildNumber}].ssn    222-22-2222
     Select From List    name=dependentInfo.dependents[${ChildNumber}].heightFeet    5
-    Select From List    name=dependentInfo.dependents[${Chil;dNumber}].heightInches    4
+    Select From List    name=dependentInfo.dependents[${ChildNumber}].heightInches    4
     Input Text    name=dependentInfo.dependents[${ChildNumber}].netWeight    120
     Select Radio Button    dependentInfo.dependents[${ChildNumber}].sameAddress    Y
     Select Radio Button    dependentInfo.dependents[${ChildNumber}].adoptionGuardianship    N
@@ -708,7 +710,9 @@ Search for case
     
 Open enrollment after search
     Click Button    View
+    Wait a Bit
     Click Link    New Business
+    Wait a Bit
     Click Button    View
 
 UW Approve enrollment
@@ -934,6 +938,15 @@ Setup
 
 Teardown
     Run Keyword Unless    "${DEBUG_MODE}"=="true"    Close All Browsers
+
+Setup of Test
+    Initialize Variables
+    ${isPortalPagedisplayed}=    Get Matching Xpath Count     //a[contains(text(),'Returning User Login')]
+    Run Keyword If     '${isPortalPagedisplayed}'=='0'    Go to the Portal page
+
+Go to the Portal page
+    Go To    ${site}
+    Wait Until Page Contains    For people looking    ${SELENIUM_TIMEOUT}    Error on main page
 
 Teardown of Test
     Run Keyword If Test Failed    Log Location

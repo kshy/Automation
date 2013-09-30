@@ -19,8 +19,7 @@ Test Smoke test - Consumer completes shopping - Primary
     
     Given Anonymous User click Find Plan and proceed to Welcome page
     When Wait a Bit
-    And Click Link    Get Started
-    And Click Link    Skip & Shop Plans
+    And Proceed to the Demographic page
     And Enter demographic data for the primary applicant    53910    1    Leonard    12/15/1972    Male    Yes
     And Click Link    Save & Continue
     And Wait Until Page Contains    How do you want to shop for plans?
@@ -123,8 +122,7 @@ Consumer completes shopping - Primary, Spouse, 2 Children
     
     Given Anonymous User click Find Plan and proceed to Welcome page
     When Wait a Bit
-    And Click Link    Get Started
-    And Click Link    Skip & Shop Plans
+    And Proceed to the Demographic page
     And Enter demographic data for the primary applicant    53910    1    Brandan    12/15/1972    Male    Yes
     Click Link    Add Dependent
     And Enter demographic data for dependent    1    Veronica    11/17/1998    Spouse    Female    No
@@ -170,8 +168,7 @@ Consumer completes shopping - Child Only
     [Tags]    shopping    smoke     long    consumer
     
     Given Anonymous User click Find Plan and proceed to Welcome page
-    When Click Link    Get Started
-    And Click Link    Skip & Shop Plans
+    When Proceed to the Demographic page
     And Enter demographic data for the primary applicant    54805    1    Josephine    03/20/2011    Female    No
     And Click Link    Save & Continue
     And Wait Until Page Contains    How do you want to shop for plans?
@@ -212,16 +209,14 @@ Test Smoke test - Producer sends proposal and completes shopping - Primary
     ...
     [Tags]    shopping    smoke     short    agent
     
-    Given Broker logs in to application
+    Given Shah Broker logs in to application
     When Selects IFP Case
     And Enter details in Create IFP Case page   53910
     And Wait Until Page Contains    Case Summary - Individual
     And Click Link    New Business
-    And Click Link    Traditional Quote
-#    And Click Button     Create Quote
-    And Click Link Get Started
-    And Click Link    Skip & Shop Plans
-    And Enter demographic data for the primary applicant    53910    1    Leonard    12/15/1972    Male    Yes
+    And Start Quote
+    And Proceed to the Demographic page
+    And Enter demographic data for the primary applicant    53910    1    Albert    01/01/1972    Male    Yes
     And Click Link    Save & Continue
     And Wait Until Page Contains    How do you want to shop for plans?
     And Click Link    Select Browse
@@ -253,7 +248,7 @@ Test Smoke test - Producer sends proposal and completes shopping - Primary
     And Enter details in Payment Options page
     And Wait a Bit
     And Pass Verify Application page
-    And Enter details in Submit Application on Behalf of Applicant page    Bob    B    Broker
+    And Enter details in Submit Application on Behalf of Applicant page    shah    \    broker
     Then Wait Confirmation page
 
 Producer completes shopping - Primary
@@ -265,16 +260,14 @@ Producer completes shopping - Primary
     ...
     [Tags]    shopping    smoke     long    agent
     
-    Given Broker logs in to application
+    Given Shah Broker logs in to application
     When Selects IFP Case
     And Enter details in Create IFP Case page   53910
     And Wait Until Page Contains    Case Summary - Individual
     And Click Link    New Business
-    And Click Link    Traditional Quote
-#    And Click Button     Create Quote
-    And Click Link Get Started
-    And Click Link    Skip & Shop Plans
-    And Enter demographic data for the primary applicant    53910    1    Leonard    12/15/1972    Male    Yes
+    And Start Quote
+    Proceed to the Demographic page
+    And Enter demographic data for the primary applicant    53910    1    Norman    02/15/1970    Male    No
     And Click Link    Save & Continue
     And Wait Until Page Contains    How do you want to shop for plans?
     And Click Link    Select Browse
@@ -298,7 +291,7 @@ Producer completes shopping - Primary
     And Enter details in Payment Options page
     And Wait a Bit
     And Pass Verify Application page
-    And Enter details in Submit Application on Behalf of Applicant page    Bob    B    Broker
+    And Enter details in Submit Application on Behalf of Applicant page    shah    \    broker
     Then Wait Confirmation page
 
 Producer completes shopping - Family of 4
@@ -308,34 +301,28 @@ Producer completes shopping - Family of 4
     ...
     ...    *Applicant combination :* Primary
     ...
-    [Tags]    shopping    smoke     long    agent    draft
+    [Tags]    shopping    smoke     long    agent
     
-    Given Broker logs in to application
-    When Selects IFP Case
-    And Enter details in Create IFP Case page   54805
-    And Wait Until Page Contains    Case Summary - Individual
-    And Click Link    New Business
-    And Click Link    Traditional Quote
-#    And Click Button     Create Quote
-    And Click Link Get Started
-    And Click Link    Skip & Shop Plans
-    And Enter demographic data for the primary applicant    54805    1    Leonard    12/15/1972    Male    Yes
+    Given Shah Broker logs in to application
+    When Selects IFP Quoting
+    And Proceed to the Demographic page
+    And Enter demographic data for the primary applicant    54805    1    Felix    12/31/1982    Male    Yes
     Click Link    Add Dependent
-    And Enter demographic data for dependent    1    Veronica    11/17/1998    Spouse    Female    No
+    And Enter demographic data for dependent    1    Cindy    11/17/1985    Spouse    Female    No
     Click Link    Add Dependent
-    And Enter demographic data for dependent    2    Lily    08/31/2013    Child    Female    No
+    And Enter demographic data for dependent    2    Emma    03/01/2009    Child    Female    No
     Click Link    Add Dependent
-    And Enter demographic data for dependent    3    Robert    09/01/2009    Child    Male    No
+    And Enter demographic data for dependent    3    Kelvin    04/29/2013    Child    Male    No
     And Click Link    Save & Continue
     And Click Link    Select Browse
     And Wait a Bit
     And Switch to small view
-    And Click Add to Cart for plan    Classic $1,800 -20%
+    And Click Add to Cart for plan    Classic $1,800-20%
     And Wait Until Page Contains    1 Plan Added to Cart
     And Wait a Bit
     And Click Link    View Cart & Enroll
     And Wait Until Page Contains    Items In Your Cart
-    And Add dental rider to plan    Low     Classic $1,800 -20%
+    And Add dental rider to plan    Low     Classic $1,800-20%
     And Wait a Bit
     And Click Link    Enroll Now
     
@@ -347,9 +334,9 @@ Producer completes shopping - Family of 4
     And Click Link    Start Application
     And Broker Enters Primary Applicant details, selects Coverage for     My Family
     And Enter details in Family Members page   3
+    And Pass Primary Care Provider page
     And Enter details in Prior Coverage page
     And Enter details in Payment Options page
     And Pass Verify Application page
-    And Pass Authorized Representative page
-    And Enter details in Submit Application on Behalf of Applicant page
+    And Enter details in Submit Application on Behalf of Applicant page    shah    \    broker
     Then Wait Confirmation page

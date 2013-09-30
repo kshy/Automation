@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation     SG - Enrollment - Smoke Test
-Suite Setup       Setup
+Suite Setup       Setup of Test
 Suite Teardown    Teardown
 Test Setup        Initialize Variables
 Test Teardown     Teardown of Test

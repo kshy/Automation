@@ -1118,21 +1118,44 @@ Broker logs in to application
     Sleep    2s
     Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Click Button    name=login.button
     Wait Until Page Contains    Welcome, Bob Broker!    ${SELENIUM_TIMEOUT}    Dashboard has not displayed
-#    Wait Until Page Contains    Welcome, shah broker!    ${SELENIUM_TIMEOUT}    Dashboard has not displayed
+    
+Shah Broker logs in to application
+    Click Link    Returning User Login
+    Wait Until Page Contains    Welcome    ${SELENIUM_TIMEOUT}    Welcome screen has not displayed
+    Input Text    name=username    shahbroker
+    Input Text    name=password    password
+    Comment    Introduced sleep as per 6.1 maint application behaviour
+    Sleep    2s
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Click Button    name=login.button
+    Wait Until Page Contains    Welcome, shah broker!    ${SELENIUM_TIMEOUT}    Dashboard has not displayed
 
 Selects IFP Case
     Wait Until Page Contains    Dashboard    ${SELENIUM_TIMEOUT}
     Execute Javascript    $('#activities').parent().showSuperfishUl()
     Execute Javascript    $('#newCase').parent().showSuperfishUl()
     Click Link    ifpCase
-    
+
+Selects IFP Quoting
+    Wait Until Page Contains    Dashboard    ${SELENIUM_TIMEOUT}    Dashboard has not displayed
+    Execute Javascript    $('a:contains("Activities")').parent().showSuperfishUl()
+    Execute Javascript    $('a:contains("New Quote")').parent().showSuperfishUl()
+    Click Link    Individual and Family
+
+Start Quote
+    ${isFFMon}=    Get Matching Xpath Count     xpath=//a[text()='Traditional Quote']
+    Run Keyword If    '${isFFMon}'=='0'    Click Button     Create Quote
+    Run Keyword Unless    '${isFFMon}'=='0'    Click Link    Traditional Quote
+
 Finalize Quote
     Click Element    xpath=//a[@class='quote-receipt _quoteShow']
     Click Link    Finalize Quote
     Click Link    ×
     
-Click Link Get Started
-    Wait Until Keyword Succeeds    60    5    Click Link    Get Started
+
+Proceed to the Demographic page
+    Wait Until Keyword Succeeds    30    5    Click Link    Get Started
+    ${isFFMon}=    Get Matching Xpath Count     xpath=//a[text()='Skip & Shop Plans']
+    Run Keyword Unless    '${isFFMon}'=='0'    Click Link    Skip & Shop Plans
 
 #Broker starts application
 #    Mouse Over    activities

@@ -1,0 +1,1183 @@
+*** Settings ***
+Documentation     A resource file that would consists of application specific keywords enabling automated test scripts.
+Library           String
+Library           Selenium2Library    timeout=${SELENIUM_TIMEOUT}    implicit_wait=${SELENIUM_IMPLICIT_WAIT}
+Library           BuiltIn
+Library           Screenshot
+Library           Collections
+
+*** Variables ***
+
+*** Keywords ***
+Get site
+    [Return]    ${HOST}${CONTEXT_ROOT}/shopping/Portal.action
+
+Setup
+    ${site}=    Get Site
+    ${DCAPS}=    Replace Variables    ${DCAPS}
+    Set Global Variable    ${site}
+    Open Browser    ${site}    browser=${BROWSER}    remote_url=${REMOTE_URL}    desired_capabilities=${DCAPS}
+    Maximize Browser Window
+    Comment    Wait Until Page Contains    Returning User Login    ${SELENIUM_TIMEOUT}    Home screen has not displayed
+
+Current Date
+    ${yyyy}    ${mm}    ${dd}=    Get Time    year month day
+    ${date}=    Set Variable    ${mm}/${dd}/${yyyy}
+    [Return]    ${date}
+
+Initialize Variables
+    ${reqstdEffDate}=    Set Variable    01/01/2014
+    ${randNbr}=    Generate Random String    4    [NUMBERS]
+    ${caseName}=    Catenate    Case${randNbr}
+    ${userFName}=    Generate Random String    6    [UPPER]
+    ${userFName2}=    Generate Random String    6    [UPPER]
+    ${userFName3}=    Generate Random String    6    [UPPER]
+    ${userFName4}=    Generate Random String    6    [UPPER]
+    ${userFName5}=    Generate Random String    6    [UPPER]
+    ${userFName6}=    Generate Random String    6    [UPPER]
+    ${userLName}=    Generate Random String    6    [UPPER]
+    ${userName}=    Catenate    User${randNbr}
+    ${email}=    Set Variable    test${randNbr}@test.com
+    Set Test Variable    ${reqstdEffDate}
+    Set Test Variable    ${caseName}
+    Set Test Variable    ${userFName}
+    Set Test Variable    ${userFName2}
+    Set Test Variable    ${userFName3}
+    Set Test Variable    ${userFName4}
+    Set Test Variable    ${userFName5}
+    Set Test Variable    ${userFName6}
+    Set Test Variable    ${userLName}
+    Set Test Variable    ${userName}
+    Set Test Variable    ${email}
+    Sleep    2s
+    Navigate To
+
+Navigate To
+    Go To    ${site}
+
+Verify '${screenName}' Page Displays
+    Wait Until Page Contains    ${screenName}    ${SELENIUM_TIMEOUT}    ${screenName} screen has not displayed
+
+A Consumer
+    Consumer Navigates To The Welcome Screen
+    Get Started With SHOP
+
+A Consumer SHOP for plan
+    Consumer Navigates To The Welcome Screen
+    Get Started With SHOP
+    How Would You Like To Continue    Skip & Shop Plans
+    Comment    Select Event
+
+A Agent
+    Agent Logs Into Application
+    Selects Shopping From Agent
+    Get Started With SHOP
+
+Agent Logs Into Application
+    Click Link    Returning User Login
+    Wait Until Page Contains    Welcome    ${SELENIUM_TIMEOUT}    Welcome screen has not displayed
+    Input Text    name=username    bobbroker
+    Input Text    name=password    password
+    Sleep    2s
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Click Button    name=login.button
+    Wait Until Page Contains    Welcome, Bob Broker!    ${SELENIUM_TIMEOUT}    Dashboard has not displayed
+
+Consumer Navigates To The Welcome Screen
+    Click Link    fCoverage
+    Verify 'Welcome' Page Displays
+    Click Link    Find Plan
+
+Selects Shopping From Agent
+    Wait Until Page Contains    Dashboard    ${SELENIUM_TIMEOUT}    Dashboard has not displayed
+    Execute Javascript    $('a:contains("Activities")').parent().showSuperfishUl()
+    Execute Javascript    $('a:contains("New Quote")').parent().showSuperfishUl()
+    Sleep    3s
+    Click Link    Individual and Family
+
+Get Started With SHOP
+    Wait Until Keyword Succeeds    60s    1s    Element Should Be Visible    css=.btn_getstarted._engage
+    Click Link    css=.btn_getstarted._engage
+
+Enter Demographic Details
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=._zipCode
+    Comment    Verify 'Days Left for Open Enrollment' Page Displays
+    Sleep    5s
+    Input Text    name=zipCode    54450
+    Input Text    name=name.first    ${userFName}
+    Input Text    name=birthDate    10/10/1990
+    Select From List    name=gender    Male
+    Select From List    name=isSmoker    Yes
+    Click Continue
+
+SHOP On Checking The Eligibility and Taking Guidance
+    Would You Like To Learn If You're Eligible    Check Now
+    Enter Demographic Details
+    How Do You Want To Shop For Plans?    Select Guide Me
+    Plans Are There
+
+SHOP On Selecting The Shop For Plans and Browse All Plans
+    How Would You Like To Continue    Skip & Shop Plans
+    Enter Demographic Details
+    How Do You Want To Shop For Plans?    Select Browse
+    Plans Are There
+
+How Would You Like To Continue
+    [Arguments]    ${like}
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=.btn_primary._subsidyCheck
+    Verify 'Would you like to learn if you're eligible for savings on your healthcare?' Page Displays
+    Page Should Contain Link    Check Now
+    Page Should Contain Link    Skip & Shop Plans
+    Click Link    ${like}
+    Run Keyword If    '${like}'=='Check Now'    Eligibility Check
+
+Click Continue
+    Click Link    Save & Continue
+
+Eligibility Check
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=div#initialEligibility
+    Verify 'Am I eligible for assistance paying for my health insurance?' Page Displays
+    Page Should Contain    Eligibility Results
+    Click Element    _assistanceEligibility_0
+    Select From List    name=_householdMakeup    1
+    Sleep    2s
+    Repeat Keyword    2    Click Element    _householdIncome_0
+    Page Should Contain    Likely Eligible
+    Sleep    2s
+    Repeat Keyword    2    Click Element    _householdIncome_1
+    Page Should Contain    Not Likely Eligible
+    Click Link    Continue without Financial Assistance
+
+How Do You Want To Shop For Plans?
+    [Arguments]    ${wish}
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=a.btn_primary.method-action[data-id=WF1]
+    Verify 'How do you want to shop for plans?' Page Displays
+    Page Should Contain Link    Select Guide Me
+    Page Should Contain Link    Select Browse
+    Click Link    ${wish}
+    Run Keyword If    '${wish}'=='Select Guide Me'    Guide Me
+
+Guide Me
+    Selecting Your Preferences
+    Provider Lookup
+    Estimate Costs
+    Comment    Your Summary
+
+Selecting Your Preferences
+    Comment    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=div.ui-slider
+    Verify 'Which best describes the amount you' Page Displays
+    Click Continue
+    Comment    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=div._questionValue
+    And Select deductible    $2,000
+    Verify 'Would you prefer a plan where' Page Displays
+    And Select Co-insurance radio button    Yes
+    And Select HSA radio button    Yes
+    Comment    Select Radio Button    answers    A1
+    Click Continue
+    Comment    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=input#Features_Dental
+    Comment    Verify 'What features are most important to have included in your health plan' Page Displays
+    Comment    Select Checkbox    Features_Dental
+    Comment    Click Continue
+
+Provider Lookup
+    Comment    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=input._providerName
+    Verify 'This is the doctor look-up' Page displays
+    Comment    Input Text    css=input._providerName    a
+    Comment    Sleep    2s
+    Comment    Click Link    Search
+    Comment    Sleep    2s
+    Comment    Select Checkbox    css=input._providerSelect[data-provider-id="NTWK_1"]
+    Click Continue
+
+Estimate Costs
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=input[name='profile']
+    Verify 'How would you describe this person's health?' Page Displays
+    Select Radio Button    profile    HEALTHY
+    ${retStatus}=    Run Keyword And Ignore Error    Click Continue
+    Run Keyword If    '${retStatus[0]}'=='FAIL'    Click Link    Finish & See Results
+
+Your Summary
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=table.healthcare-needs-table
+    Verify 'Your Summary' Page Displays
+    Page Should Contain    Below is the overall profile we will be using to help find you plans.
+    Page Should Contain    ${userFName}
+    Page Should Contain    80%
+    Click Link    Close & View Your Plans
+
+Plans Are There
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    60s    Element Should be Visible    css=a.btn-inline[title="View All Plans"]
+    Wait A Bit
+    Verify 'See & Compare Plans' Page Displays
+    Wait A Bit
+    Element Should be Visible    css=a.btn-inline[title="View All Plans"]
+    Element Should be Visible    css=a.btn-inline[title="View Plan Comparison"]
+    Element Should be Visible    css=a.btn-inline[title="View Single Plan Details"]
+
+Plans Can Be Viewed And Added To Shopping Cart
+    View Plan Details
+    Add Plan To Cart
+    Decide & Enroll
+
+Plans Can Be Viewed And Added To Quote
+    View Plan Details
+    Add Quote
+
+Click View All Plans
+    Click Link    css=a.btn-inline[title="View All Plans"]
+
+Click View Single Plan Details
+    Click Element    css=a.btn-inline[title="View Single Plan Details"]
+
+View Plan Details
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should Be Visible    css=a.plan-name
+    ${planName}=    Get Element Attribute    css=div.plan-card:nth-child(2) input[type='checkbox']@id
+    ${planRate}=    Execute Javascript    return $('.rate._currency').html().replace('$','');
+    Set Global Variable    ${planName}
+    Set Global Variable    ${planRate}
+    Wait Until Keyword Succeeds    60s    1s    Click Element    css=div.plan-card:nth-child(2) input[type='checkbox']
+    Click View Single Plan Details
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should Be Visible    css=table.benefit-details-table
+    Page Should Contain    ${planName}
+    Page Should Contain    ${planRate}
+    Page Should Contain    Key Benefits
+    Page Should Contain    Metal Tier
+    Page Should Contain    Deductible
+    Page Should Contain    Coinsurance
+    Page Should Contain    Annual out of pocket
+    Page Should Contain    Office visit specialist copayment
+    Page Should Contain    Outpatient radiology services copayment
+
+Add Plan To Cart
+    Click Link    Add to Cart
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should Be Visible    css=a[class='btn_primary _viewCart']
+    Page Should Contain    Cart Summary (1 Item)
+    Page Should Contain    ${planName}
+    Page Should Contain    ${planRate}
+    Page Should Contain Link    Continue Shopping
+    Page Should Contain Link    View Cart & Enroll
+    Click Link    View Cart & Enroll
+
+Add Quote
+    Click Link    Add to Quote
+    Comment    Click OK On Add To Quote Dialog
+    Comment    Sleep    2s
+    Comment    Click Link    Quote
+    Comment    Click OK On Add To Quote Dialog
+
+Click OK On Add To Quote Dialog
+    ${message}=    Confirm Action
+    # Chooses Ok
+    Should Contain    ${message}    Quote Receipt:
+
+Decide & Enroll
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should Be Visible    css=a.btn_primary._btnEnroll
+    Verify 'Decide & Enroll' Page Displays
+    Page Should Contain    ${userFName}
+    Page Should Contain    ${planName}
+    Page Should Contain    ${planRate}
+    Page Should Contain Link    Remove Plan
+    Page Should Contain Link    Change Plan
+    Page Should Contain Link    Continue Shopping
+    Page Should Contain Link    Enroll Now
+
+User attempts to enter '${applicantNumber}' applicant(s) demographics '${zip}' '${name}' '${dob}' '${gender}' '${tobacco}' '${relationship}'
+    ${applicantNbr}=    Evaluate    int(${applicantNumber}) -1
+    Input Text    name=zipCode    ${zip}
+    Input Text    css=input[name="name.first"][data-id="${applicantNbr}"]    ${name}
+    Input Text    css=input[name="birthDate"][data-id="${applicantNbr}"]    ${dob}
+    Execute Javascript    $('select[name="gender"][data-id=\"${applicantNbr}\"]').click();
+    Select From List    css=select[name="gender"][data-id="${applicantNbr}"]    ${gender}
+    Select From List    css=select[name="isSmoker"][data-id="${applicantNbr}"]    ${tobacco}
+    Run Keyword If    ${applicantNumber}>1    Select From List By Value    css=select[name="memberRelationship"][data-id="${applicantNbr}"]    ${relationship}
+
+Click Add Dependent
+    Click Link    Add Dependent
+
+Error Message '${errorMsg}' Should Be Displayed
+    Wait Until Page Contains    ${errorMsg}
+
+Tobacco User Should Be Enabled for '${applicantNumber}'
+    ${applicantNbr}=    Evaluate    int(${applicantNumber}) -1
+    Element Should Be Enabled    css=select[name="isSmoker"][data-id="${applicantNbr}"]
+
+Tobacco User Should Be Disabled for '${applicantNumber}'
+    ${applicantNbr}=    Evaluate    int(${applicantNumber}) -1
+    Element Should Be Disabled    css=select[name="isSmoker"][data-id="${applicantNbr}"]
+
+Select '${planCount}' Plans
+    Wait A Bit
+    Run Keyword If    '${planCount}'=='1'    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Click Element    xpath=//div[@class='plan-card'][1]//input
+    Run Keyword If    '${planCount}'=='2'    Select '1' Plans
+    Run Keyword If    '${planCount}'=='2'    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Click Element    xpath=//div[@class='plan-card'][2]//input
+    Run Keyword If    '${planCount}'=='3'    Select '2' Plans
+    Run Keyword If    '${planCount}'=='3'    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Click Element    xpath=//div[@class='plan-card'][3]//input
+    Run Keyword If    '${planCount}'=='4'    Click Link    xpath=//a[@title='View All Plans']
+    Run Keyword If    '${planCount}'=='4'    Run keywords    Wait A Bit    Select '3' Plans
+    Run Keyword If    '${planCount}'=='4'    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Click Element    xpath=//div[@class='plan-card'][4]//input
+
+Verify The Print Link Status As '${linkStatus}'
+    ${state}=    Get Element Attribute    xpath=//span[@class='content-navigation']//ul/li[1]/a/span@class
+    Run Keyword If    '${linkStatus}'=='Enabled'    Should Not Contain    ${state}    disabled
+    Run Keyword If    '${linkStatus}'=='Disabled'    Should Contain    ${state}    disabled
+
+Verify The Compare Link Status As '${linkStatus}'
+    ${state}=    Get Element Attribute    xpath=(//li[3]/a/span)[2]@class
+    Comment    ${state}=    Get Element Attribute    xpath=//li[3]/a/span@class
+    Run Keyword If    '${linkStatus}'=='Enabled'    Should Not Contain    ${state}    disabled
+    Run Keyword If    '${linkStatus}'=='Disabled'    Should Contain    ${state}    disabled
+
+Verify The Email Link Status As '${linkStatus}'
+    ${state}=    Get Element Attribute    xpath=(//li[2]/a/span)[2]@class
+    Comment    ${state}=    Get Element Attribute    xpath=//li[2]/a/span@class
+    Run Keyword If    '${linkStatus}'=='Enabled'    Should Not Contain    ${state}    disabled
+    Run Keyword If    '${linkStatus}'=='Disabled'    Should Contain    ${state}    disabled
+
+Select Event
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=#Birth
+    Select Radio Button    seReason    Move
+    Execute Javascript    $('[name="eventDate"]').val('10/01/2013');
+    Execute Javascript    $('[name="eventDate"]').focusout();
+    Click Continue
+
+Create a New IFP Quote
+    Wait Until Page Contains Element    css=ul.sf-menu
+    Verify 'Create IFP Case' Page Displays
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Input Text    name=caseProfileData.caseName    ${casename}
+    Click Button    Continue
+
+Get Plan Names
+    Wait A Bit
+    ${retPlanName1}=    Get Element Attribute    xpath=//div[@class='plan-card'][1]//input@id
+    ${retPlanName2}=    Get Element Attribute    xpath=//div[@class='plan-card'][2]//input@id
+    ${retPlanName3}=    Get Element Attribute    xpath=//div[@class='plan-card'][3]//input@id
+    ${retPlanNames}=    Create List    ${retPlanName1}    ${retPlanName2}    ${retPlanName3}
+    [Return]    ${retPlanNames}
+
+Send '${planCount}' Plan(s) For Email Send
+    ${getPlan}=    Get Plan Names
+    And Select '${planCount}' Plans
+    Click Email Link
+    And Enter Details In Email Modal Window- '${email}', '(121) 212-1212', 'Ade', 'Smith'
+    Click Email Plan(s)
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Page Should Contain    Your email was successfully sent
+    Wait A Bit
+    Click Link    Close
+    [Return]    ${getPlan}
+
+Click Email Link
+    Click Element    css=.email
+
+Enter Details In Email Modal Window- '${email}', '${phoneNumber}', '${firstName}', '${lastName}'
+    Input Text    toEmail    ${email}
+    Input Text    phone    ${phoneNumber}
+    Input Text    firstName    ${firstName}
+    Input Text    lastName    ${lastName}
+
+Click Email Plan(s)
+    Click Link    Email Plan(s)
+
+User Receives Email Including Plan Verification
+    [Arguments]    ${planCount}    ${planName}
+    Connect Mock Mail Server
+    Verify Email Content    ${planCount}    ${planName}
+
+Connect Mock Mail Server
+    Go To    ${HOST}/mockmail/mailview.html
+    Wait For Condition    return $('div#messageCount').html().trim()!='';    90s
+    Sleep    2s
+    Wait Until Page Contains    Enter email address
+    Input Text    toEmail    ${email}
+    Sleep    2s
+    Click Link    id=go
+
+Verify Email Content
+    [Arguments]    ${planCount}    ${planName}
+    Page Should Contain    Check out these plans from FlexCare
+    ${getPlan1}=    Get From List    ${planName}    0
+    ${getPlan2}=    Get From List    ${planName}    1
+    ${getPlan3}=    Get From List    ${planName}    2
+    Page Should Contain    Male
+    Page Should Contain    90210
+    Page Should Contain    ${reqstdEffDate}
+    Run Keyword If    '${planCount}'=='1'    Page Should Contain    ${getPlan1}
+    Run Keyword If    '${planCount}'=='2'    Page Should Contain    ${getPlan1}
+    Run Keyword If    '${planCount}'=='2'    Page Should Contain    ${getPlan2}
+    Run Keyword If    '${planCount}'=='3'    Page Should Contain    ${getPlan1}
+    Run Keyword If    '${planCount}'=='3'    Page Should Contain    ${getPlan2}
+    Run Keyword If    '${planCount}'=='3'    Page Should Contain    ${getPlan3}
+
+Verify Objects In Email Window
+    Element Should Be Visible    css=input[name='toEmail']
+    Element Should Be Visible    css=input[name='phone']
+    Element Should Be Visible    css=input[name='firstName']
+    Element Should Be Visible    css=input[name='lastName']
+    Element Should Be Visible    css=input[name='callMe']
+    Element Should Be Visible    css=input[name='futureEmails']
+    Element Should Be Visible    css=a[class='btn_primary _btnEmail']
+    Element Should Be Visible    css=a[class='btn-utility _btnCancel']
+    Element Should Be Enabled    css=input[name='toEmail']
+    Element Should Be Enabled    css=input[name='phone']
+    Element Should Be Enabled    css=input[name='firstName']
+    Element Should Be Enabled    css=input[name='lastName']
+    Element Should Be Enabled    css=input[name='callMe']
+    Element Should Be Enabled    css=input[name='futureEmails']
+
+Verify '${option}' Is In Activated View
+    Run Keyword If    '${option}'=='View All Plans'    Element Should Be Visible    css=.btn-inline.active._browse.has-tooltip[title='${option}']
+    Run Keyword If    '${option}'=='View Plan Comparison'    Element Should Be Visible    css=.btn-inline.active._compare.has-tooltip[title='${option}']
+    Run Keyword If    '${option}'=='View Single Plan Details'    Element Should Be Visible    css=.btn-inline.active._details.has-tooltip[title='${option}']
+
+Verify '${option}' Is Not In Activated View
+    Run Keyword If    '${option}'=='View All Plans'    Element Should Not Be Visible    css=.btn-inline.active._browse.has-tooltip[title='${option}']
+    Run Keyword If    '${option}'=='View Plan Comparison'    Element Should Not Be Visible    css=.btn-inline.active._compare.has-tooltip[title='${option}']
+    Run Keyword If    '${option}'=='View Single Plan Details'    Element Should Not Be Visible    css=.btn-inline.active._details.has-tooltip[title='${option}']
+
+Click Compare
+    Click Element    css=.compare.has-tooltip>div
+
+Verify Plan Name
+    [Arguments]    ${planCount}    ${planName}
+    ${getPlan1}=    Get From List    ${planName}    0
+    ${getPlan2}=    Get From List    ${planName}    1
+    ${getPlan3}=    Get From List    ${planName}    2
+    Run Keyword If    '${planCount}'=='1'    Page Should Contain    ${getPlan1}
+    Run Keyword If    '${planCount}'=='2'    Page Should Contain    ${getPlan1}
+    Run Keyword If    '${planCount}'=='2'    Page Should Contain    ${getPlan2}
+    Run Keyword If    '${planCount}'=='3'    Page Should Contain    ${getPlan1}
+    Run Keyword If    '${planCount}'=='3'    Page Should Contain    ${getPlan2}
+    Run Keyword If    '${planCount}'=='3'    Page Should Contain    ${getPlan3}
+
+Select Metal Tier '${tierName}'
+    Run Keyword If    '${tierName}'=='Platinum'    Select CheckBox    css=.checkBox-option-div>input[value='platinum']
+    Run Keyword If    '${tierName}'=='Gold'    Select CheckBox    css=.checkBox-option-div>input[value='gold']
+    Run Keyword If    '${tierName}'=='Silver'    Select CheckBox    css=.checkBox-option-div>input[value='silver']
+    Run Keyword If    '${tierName}'=='Bronze'    Select CheckBox    css=.checkBox-option-div>input[value='bronze']
+    Wait A Bit
+
+Select Deductible '${tierRange}'
+    Run Keyword If    '${tierRange}'=='500orLess'    Drag And Drop    handle_Deductible_Filter    xpath=(//span[@class="ui-slider-tic ui-widget-content"])[2]
+    Run Keyword If    '${tierRange}'=='500-1500'    Drag And Drop    handle_Deductible_Filter    xpath=(//span[@class="ui-slider-tic ui-widget-content"])[3]
+    Run Keyword If    '${tierRange}'=='1500-3500'    Drag And Drop    handle_Deductible_Filter    xpath=(//span[@class="ui-slider-tic ui-widget-content"])[4]
+    Run Keyword If    '${tierRange}'=='3500-5000'    Drag And Drop    handle_Deductible_Filter    xpath=(//span[@class="ui-slider-tic ui-widget-content"])[5]
+    Run Keyword If    '${tierRange}'=='5000andMore'    Drag And Drop    handle_Deductible_Filter    xpath=(//span[@class="ui-slider-label ui-slider-label-show"])[3]
+    Wait A Bit
+
+Select Content '${contentPlan}'
+    Click Element    xpath=//span[@class="arrow-down shop-icon-arrow"]
+    Run Keyword If    '${contentPlan}'=='Exemplar Medical'    Click Element    xpath=//div[@class="sidebar-header _productLineSelector active"]//span[1]
+    Run Keyword If    '${contentPlan}'=='Exemplar Life'    Click Element    xpath=//div[@class="sidebar-title _option"]
+    Wait A Bit
+
+Select EndorsedBy '${endorsedNames}'
+    Run Keyword If    '${endorsedNames}'=='Alvin'    Select CheckBox    xpath=(//div[@class="checkBox-option-div"]/input)[5]
+    Run Keyword If    '${endorsedNames}'=='Simon'    Select CheckBox    xpath=(//div[@class="checkBox-option-div"]/input)[6]
+    Run Keyword If    '${endorsedNames}'=='Theodore'    Select CheckBox    xpath=(//div[@class="checkBox-option-div"]/input)[7]
+    Wait A Bit
+
+Select Deductible with Metal '${tierRange}'
+    Run Keyword If    '${tierRange}'=='500orLess'    Drag And Drop    handle_Deductible_Filter    xpath=(//span[@class="ui-slider-tic ui-widget-content"])[2]
+    Run Keyword If    '${tierRange}'=='500-1500'    Drag And Drop    handle_Deductible_Filter    xpath=(//span[@class="ui-slider-tic ui-widget-content"])[3]
+    Run Keyword If    '${tierRange}'=='1500-3500'    Drag And Drop    handle_Deductible_Filter    xpath=(//span[@class="ui-slider-tic ui-widget-content"])[3]
+    Run Keyword If    '${tierRange}'=='3500-5000'    Drag And Drop    handle_Deductible_Filter    xpath=(//span[@class="ui-slider-label ui-slider-label-show"])[4]
+    Wait A Bit
+
+Get Plan Count
+    ${getPlanCount}=    Get Text    css=.plan-number>.active
+    [Return]    ${getPlanCount}
+
+Apply Filter on Metal Tier '${tierNames}'
+    Click View All Plans
+    ${getInitialPlanCount}=    Get Plan Count
+    @{tierN}=    Split String    ${tierNames}    ,
+    : FOR    ${tierName}    IN    @{tierN}
+    \    Select Metal Tier '${tierName}'
+    ${getLaterPlanCount}=    Get Plan Count
+    [Return]    ${getInitialPlanCount}    ${getLaterPlanCount}
+
+Apply Filter on Deductible '${tierRanges}'
+    Click View All Plans
+    ${getInitialPlanCount}=    Get Plan Count
+    Select Deductible '${tierRanges}'
+    ${getLaterPlanCount}=    Get Plan Count
+    [Return]    ${getInitialPlanCount}    ${getLaterPlanCount}
+
+Apply Filter on Content '${contentPlan}'
+    Click View All Plans
+    Sleep    2s
+    ${getInitialPlanCount}=    Get Plan Count
+    Select Content '${contentPlan}'
+    ${getLaterPlanCount}=    Get Plan Count
+    Set Test Variable    ${getLaterPlanCount}
+    Run Keyword If    '${contentPlan}'=='Exemplar Life'    Store Exemplar Life Plan count
+    [Return]    ${getInitialPlanCount}    ${getLaterPlanCount}
+
+Apply Filter on Metal '${tierNames}' with Deductibles '${tierRanges}'
+    Click View All Plans
+    ${getInitialPlanCount}=    Get Plan Count
+    Select Metal Tier '${tierNames}'
+    Select Deductible with Metal '${tierRanges}'
+    ${getLaterPlanCount}=    Get Plan Count
+    [Return]    ${getInitialPlanCount}    ${getLaterPlanCount}
+
+Apply Filter on EndorsedBy '${endorsedNames}'
+    Click View All Plans
+    ${getInitialPlanCount}=    Get Plan Count
+    Comment    @{tierN}=    Split String    ${tierNames}    ,
+    Comment    : FOR    ${tierName}    IN    @{tierN}
+    Select EndorsedBy '${endorsedNames}'
+    ${getLaterPlanCount}=    Get Plan Count
+    [Return]    ${getInitialPlanCount}    ${getLaterPlanCount}
+
+Verify Plan Filter Is Applied On '${tierNames}' And Changes '${getPlan}'
+    Run Keyword And Ignore Error    Should Not Be Equal As Integers    ${getPlan[0]}    ${getPlan[1]}
+    : FOR    ${tier}    IN RANGE    ${getPlan[1]}
+    \    Run Keyword If    ${tier}>1    Verify Tier    ${tier}    ${tierNames}
+
+Verify Plan Filter Is Applied On Range '${tierRanges}' And Changes '${getPlan}'
+    Run Keyword And Ignore Error    Should Not Be Equal As Integers    ${getPlan[0]}    ${getPlan[1]}
+
+Verify Plan Filter Is Applied On Content '${contentPlan}' And Changes '${getPlan}'
+    Run Keyword If    '${contentPlan}'=='Exemplar Life'    Should Not Be Equal As Integers    ${getPlan[0]}    ${getPlan[1]}
+    Run Keyword If    '${contentPlan}'=='Exemplar Medical'    Should Not Be Equal As Integers    ${getPlan[0]}    ${getLaterPlanCount2}
+
+Verify Plan Filter Is Applied On EndorsedBy '${endorsedNames}' And Changes '${getPlan}'
+    Run Keyword And Ignore Error    Should Not Be Equal As Integers    ${getPlan[0]}    ${getPlan[1]}
+
+Store Exemplar Life Plan count
+    ${getLaterPlanCount2}=    Set Variable    ${getLaterPlanCount}
+    Set Global Variable    ${getLaterPlanCount2}
+
+Verify Tier
+    [Arguments]    ${tier}    ${tierName}
+    ${tierNumber}=    Evaluate    ${tier}-2
+    ${newTier6}=    Evaluate    ${tier}-6
+    ${newTier12}=    Evaluate    ${tier}-12
+    ${newTier18}=    Evaluate    ${tier}-18
+    ${temp}=    Run Keyword If    ${tier}<=7    Verify Tier Further    ${tier}    ${tierName}    ELSE IF
+    ...    ${tier}>=20    Verify Tier Further    ${newTier18}    ${tierName}    ELSE IF    ${tier}>=14
+    ...    Verify Tier Further    ${newTier12}    ${tierName}    ELSE IF    ${tier}>=8    Verify Tier Further
+    ...    ${newTier6}    ${tierName}
+    Run Keyword If    ${tierNumber}>0    Run Keyword If    ${tierNumber}%6==0    Run Keyword And Ignore Error    Click Element    css=._next
+
+Verify Tier Further
+    [Arguments]    ${tierNumber}    ${tierName}
+    ${getMetalType}=    Get Text    xpath=//div[@class='content-section after-sidebar play']/div[${tierNumber}]/div/div[3]/div[2]/span
+    Should Contain    ${tierName}    ${getMetalType}
+
+Wait A Bit
+    sleep    2s
+
+Teardown
+    Close Browser
+
+Would You Like To Learn If You're Eligible
+    [Arguments]    ${like}
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=.btn_primary._subsidyCheck
+    Verify 'Shopping' Page Displays
+    Page Should Contain Link    Check Now
+    Page Should Contain Link    Skip & Shop Plans
+    Click Link    ${like}
+    Run Keyword If    '${like}'=='Check Now'    Click Continue NonQHP
+
+Click Continue NonQHP
+    Click Link    Continue without Financial Assistance
+
+SHOP On Adding Multi Eligibility and Taking Guidance
+    Would You Like To Learn If You're Eligible    Check Now
+    Comment    Select Event
+    Enter Demographic Details Multi
+    How Do You Want To Shop For Plans Multi?    Select Guide Me
+
+Enter Demographic Details Multi
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=._zipCode
+    Comment    Verify 'Days Left for Open Enrollment' Page Displays
+    Sleep    5s
+    Input Text    name=zipCode    90210
+    Input Text    name=name.first    ${userFName}
+    Input Text    name=birthDate    10/10/1990
+    Select From List    name=gender    Male
+    Select From List    name=isSmoker    Yes
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[1]/input    ${userFName2}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[2]/input    01/01/1991
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[3]/select    Spouse
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[4]/select    Female
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[1]/input    ${userFName3}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[2]/input    02/01/2010
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[3]/select    Child
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[4]/select    Male
+    Click Continue
+
+Guide Me Multi
+    Click Link    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[1]/div/div/a[3]
+    Provider Lookup Multi
+    Comment    Estimate Costs
+    Comment    Your Summary
+    Click Link    Edit Preferences
+    Editing Preferences
+
+Provider Lookup Multi
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=input._providerName
+    Verify 'This is the provider widget and all content is handle by the widget.' Page displays
+    Input Text    css=input._providerName    a
+    Sleep    2s
+    Click Link    Search
+    Sleep    2s
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[2]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[3]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[3]/td[4]/input
+    Click Continue
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Finish & See Results
+
+How Do You Want To Shop For Plans Multi?
+    [Arguments]    ${wish}
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=a.btn_primary.method-action[data-id=WF1]
+    Verify 'How do you want to shop for plans?' Page Displays
+    Page Should Contain Link    Select Guide Me
+    Page Should Contain Link    Select Browse All Plans
+    Click Link    ${wish}
+    Run Keyword If    '${wish}'=='Select Guide Me'    Guide Me Multi
+
+Editing Preferences
+    comment    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div/div/a
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    2    1    ${userFName}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    3    1    ${userFName2}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[2]/td[2]/div/div/div/div[1]/div    Dr. Preston, Bill
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    4    1    ${userFName3}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[3]/td[2]/div/div/div/div[1]/div    Dr. Rufus
+
+SHOP On Adding Multi 3 DEP Eligibility and Taking Guidance
+    Would You Like To Learn If You're Eligible    Check Now
+    Comment    Select Event
+    Enter Demographic Details Multi 3 DEP
+    How Do You Want To Shop For Plans Multi 3 DEP?    Select Guide Me
+    Editing Preferences 3 DEP
+
+Enter Demographic Details Multi 3 DEP
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=._zipCode
+    Comment    Verify 'Days Left for Open Enrollment' Page Displays
+    Sleep    5s
+    Input Text    name=zipCode    90210
+    Input Text    name=name.first    ${userFName}
+    Input Text    name=birthDate    10/10/1990
+    Select From List    name=gender    Male
+    Select From List    name=isSmoker    Yes
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[1]/input    ${userFName2}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[2]/input    01/01/1991
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[3]/select    Spouse
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[4]/select    Female
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[1]/input    ${userFName3}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[2]/input    02/01/2010
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[3]/select    Child
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[4]/select    Male
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[4]/td[1]/input    ${userFName4}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[4]/td[2]/input    02/01/2005
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[4]/td[3]/select    Child
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[4]/td[4]/select    Female
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[5]/td[1]/input    ${userFName5}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[5]/td[2]/input    02/01/2001
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[5]/td[3]/select    Child
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[5]/td[4]/select    Female
+    Click Continue
+
+Provider Lookup Multi 4 DEP
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=input._providerName
+    Verify 'This is the provider widget and all content is handle by the widget.' Page displays
+    Input Text    css=input._providerName    a
+    Sleep    2s
+    Click Link    Search
+    Sleep    2s
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[2]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[3]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[4]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[5]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[6]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[7]/input
+    Click Continue
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Finish & See Results
+
+Editing Preferences 3 DEP
+    comment    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div/div/a
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    2    1    ${userFName}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    3    1    ${userFName2}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[2]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    4    1    ${userFName3}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[3]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    5    1    ${userFName4}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[4]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    6    1    ${userFName5}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[5]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+
+Guide Me Multi 3 DEP
+    Click Link    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[1]/div/div/a[3]
+    Provider Lookup Multi 3 DEP
+    Comment    Estimate Costs
+    Comment    Your Summary
+    Click Link    Edit Preferences
+    Editing Preferences 3 DEP
+
+How Do You Want To Shop For Plans Multi 3 DEP?
+    [Arguments]    ${wish}
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=a.btn_primary.method-action[data-id=WF1]
+    Verify 'How do you want to shop for plans?' Page Displays
+    Page Should Contain Link    Select Guide Me
+    Page Should Contain Link    Select Browse All Plans
+    Click Link    ${wish}
+    Run Keyword If    '${wish}'=='Select Guide Me'    Guide Me Multi 3 DEP
+
+Enter Demographic Details Multi DP
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=._zipCode
+    Comment    Verify 'Days Left for Open Enrollment' Page Displays
+    Sleep    5s
+    Input Text    name=zipCode    90210
+    Input Text    name=name.first    ${userFName}
+    Input Text    name=birthDate    10/10/1990
+    Select From List    name=gender    Male
+    Select From List    name=isSmoker    Yes
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[1]/input    ${userFName2}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[2]/input    01/01/1991
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[3]/select    Domestic Partner
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[4]/select    Female
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[1]/input    ${userFName3}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[2]/input    02/01/2010
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[3]/select    Child
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[4]/select    Male
+    Click Continue
+
+Guide Me Multi DP
+    Click Link    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[1]/div/div/a[3]
+    Provider Lookup Multi DP
+    Comment    Estimate Costs
+    Comment    Your Summary
+    Click Link    Edit Preferences
+    Editing Preferences DP
+
+Provider Lookup Multi DP
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=input._providerName
+    Verify 'This is the provider widget and all content is handle by the widget.' Page displays
+    Input Text    css=input._providerName    a
+    Sleep    2s
+    Click Link    Search
+    Sleep    2s
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[2]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[3]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[4]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[3]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[4]/input
+    Click Continue
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Finish & See Results
+
+Editing Preferences DP
+    comment    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div/div/a
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    2    1    ${userFName}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/div/div/div/div[1]/div[2]    Dr. Preston, Bill
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    3    1    ${userFName2}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[2]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[2]/td[2]/div/div/div/div[1]/div[2]    Dr. Preston, Bill
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    4    1    ${userFName3}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[3]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[3]/td[2]/div/div/div/div[1]/div[2]    Dr. Preston, Bill
+
+SHOP On Adding Multi DP Eligibility and Taking Guidance
+    Would You Like To Learn If You're Eligible    Check Now
+    Comment    Select Event
+    Enter Demographic Details Multi DP
+    How Do You Want To Shop For Plans Multi DP?    Select Guide Me
+
+How Do You Want To Shop For Plans Multi DP?
+    [Arguments]    ${wish}
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=a.btn_primary.method-action[data-id=WF1]
+    Verify 'How do you want to shop for plans?' Page Displays
+    Page Should Contain Link    Select Guide Me
+    Page Should Contain Link    Select Browse All Plans
+    Click Link    ${wish}
+    Run Keyword If    '${wish}'=='Select Guide Me'    Guide Me Multi DP
+
+SHOP On Adding Multi and Taking Guidance Clear Provider
+    Would You Like To Learn If You're Eligible    Check Now
+    Comment    Select Event
+    Enter Demographic Details Multi 4 DEP
+    How Do You Want To Shop For Plans Multi 4 DEP?    Select Guide Me
+
+Enter Demographic Details Multi 4 DEP
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=._zipCode
+    Comment    Verify 'Days Left for Open Enrollment' Page Displays
+    Sleep    5s
+    Input Text    name=zipCode    90210
+    Input Text    name=name.first    ${userFName}
+    Input Text    name=birthDate    10/10/1990
+    Select From List    name=gender    Male
+    Select From List    name=isSmoker    Yes
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[1]/input    ${userFName2}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[2]/input    01/01/1991
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[3]/select    Domestic Partner
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[4]/select    Female
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[1]/input    ${userFName3}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[2]/input    02/01/2010
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[3]/select    Child
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[4]/select    Male
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[4]/td[1]/input    ${userFName4}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[4]/td[2]/input    02/01/2005
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[4]/td[3]/select    Child
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[4]/td[4]/select    Female
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[5]/td[1]/input    ${userFName5}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[5]/td[2]/input    02/01/2001
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[5]/td[3]/select    Child
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[5]/td[4]/select    Female
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[6]/td[1]/input    ${userFName6}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[6]/td[2]/input    02/01/2003
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[6]/td[3]/select    Child
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[6]/td[4]/select    Male
+    Click Continue
+
+How Do You Want To Shop For Plans Multi 4 DEP?
+    [Arguments]    ${wish}
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=a.btn_primary.method-action[data-id=WF1]
+    Verify 'How do you want to shop for plans?' Page Displays
+    Page Should Contain Link    Select Guide Me
+    Page Should Contain Link    Select Browse All Plans
+    Click Link    ${wish}
+    Run Keyword If    '${wish}'=='Select Guide Me'    Guide Me Multi 4 DEP
+
+Guide Me Multi 4 DEP
+    Click Link    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[1]/div/div/a[3]
+    Provider Lookup Multi 4 DEP
+    Comment    Estimate Costs
+    Comment    Your Summary
+    Click Link    Edit Preferences
+    Editing Preferences 4 DEP
+
+Provider Lookup Multi 3 DEP
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=input._providerName
+    Verify 'This is the provider widget and all content is handle by the widget.' Page displays
+    Input Text    css=input._providerName    a
+    Sleep    2s
+    Click Link    Search
+    Sleep    2s
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[2]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[3]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[4]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[5]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[6]/input
+    Click Continue
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Finish & See Results
+
+Editing Preferences 4 DEP
+    comment    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div/div/a
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    2    1    ${userFName}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    3    1    ${userFName2}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[2]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    4    1    ${userFName3}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[3]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    5    1    ${userFName4}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[4]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    6    1    ${userFName5}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[5]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    7    1    ${userFName6}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[6]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Click Link    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[3]/td[2]/div/div/div/div[2]/span[2]/a
+    Clear Providers
+    Validate Cleared Providers
+
+Clear Providers
+    Click Link    Clear
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Finish & See Results
+
+Validate Cleared Providers
+    Click Link    Edit Preferences
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    2    1    ${userFName}
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    3    1    ${userFName2}
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    4    1    ${userFName3}
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    5    1    ${userFName4}
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    6    1    ${userFName5}
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    7    1    ${userFName6}
+    Page Should Not Contain    Dr. Logan, Ted
+
+SHOP On Adding Initial Eligibility and Taking Guidance
+    Would You Like To Learn If You're Eligible    Check Now
+    Comment    Select Event
+    Enter Initial Demographic Details
+    How Do You Want To Shop For Plans Initial?    Select Guide Me
+
+Enter Initial Demographic Details
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=._zipCode
+    Comment    Verify 'Days Left for Open Enrollment' Page Displays
+    Sleep    5s
+    Input Text    name=zipCode    90210
+    Input Text    name=name.first    ${userFName}
+    Input Text    name=birthDate    10/10/1990
+    Select From List    name=gender    Male
+    Select From List    name=isSmoker    Yes
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[1]/input    ${userFName2}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[2]/input    01/01/1991
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[3]/select    Spouse
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[4]/select    Female
+    Click Continue
+
+How Do You Want To Shop For Plans Initial?
+    [Arguments]    ${wish}
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=a.btn_primary.method-action[data-id=WF1]
+    Verify 'How do you want to shop for plans?' Page Displays
+    Page Should Contain Link    Select Guide Me
+    Page Should Contain Link    Select Browse All Plans
+    Click Link    ${wish}
+    Run Keyword If    '${wish}'=='Select Guide Me'    Guide Me Initial
+
+Guide Me Initial
+    Click Link    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[1]/div/div/a[3]
+    Provider Lookup Initial
+    Comment    Estimate Costs
+    Comment    Your Summary
+    Click Link    Edit Preferences
+    Editing Preferences Initial
+    Return To Demographics
+
+Provider Lookup Initial
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=input._providerName
+    Verify 'This is the provider widget and all content is handle by the widget.' Page displays
+    Input Text    css=input._providerName    a
+    Sleep    2s
+    Click Link    Search
+    Sleep    2s
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[2]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[3]/input
+    Click Continue
+    Click Link    Skip Question
+    Click Link    Finish & See Results
+
+Editing Preferences Initial
+    comment    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div/div/a
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    2    1    ${userFName}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    3    1    ${userFName2}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[2]/td[2]/div/div/div/div[1]/div    Dr. Preston, Bill
+
+Return To Demographics
+    Mouse Over    xpath=//*[@id='appProgBar']/div/div/ul/li[1]/a
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Click Link    Who's Covered
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[1]/input    ${userFName3}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[2]/input    02/01/2010
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[3]/select    Child
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[3]/td[4]/select    Male
+    Click Continue
+    Change Providers
+
+Change Providers
+    Click Link    Select Guide Me
+    Click Link    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[1]/div/div/a[3]
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[3]/input
+    Unselect Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[3]/input
+    Select Checkbox    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[4]/input
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Finish & See Results
+    Click Link    Edit Preferences
+    Verify Provider Changes
+
+Verify Provider Changes
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    2    1    ${userFName}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[1]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    3    1    ${userFName2}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[2]/td[2]/div/div/div/div[1]/div    Dr. Logan, Ted
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    4    1    ${userFName3}
+    Element Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table/tbody/tr[3]/td[2]/div/div/div/div[1]/div    Dr. Preston, Bill
+
+SHOP On Adding Multi Eligibility and Skip
+    Would You Like To Learn If You're Eligible    Check Now
+    Comment    Select Event
+    Enter Demographic Details Multi Skip
+    How Do You Want To Shop For Plans Multi Skip?    Select Guide Me
+
+Enter Demographic Details Multi Skip
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=._zipCode
+    Comment    Verify 'Days Left for Open Enrollment' Page Displays
+    Sleep    5s
+    Input Text    name=zipCode    90210
+    Input Text    name=name.first    ${userFName}
+    Input Text    name=birthDate    10/10/1990
+    Select From List    name=gender    Male
+    Select From List    name=isSmoker    Yes
+    Click Link    Add Dependent
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[1]/input    ${userFName3}
+    Input Text    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[2]/input    02/01/2010
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[3]/select    Child
+    Select From List    xpath=//*[@id='whosCovered']/div[2]/div/table/tbody/tr[2]/td[4]/select    Male
+    Click Continue
+
+How Do You Want To Shop For Plans Multi Skip?
+    [Arguments]    ${wish}
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Element Should be Visible    css=a.btn_primary.method-action[data-id=WF1]
+    Verify 'How do you want to shop for plans?' Page Displays
+    Page Should Contain Link    Select Guide Me
+    Page Should Contain Link    Select Browse All Plans
+    Click Link    ${wish}
+    Run Keyword If    '${wish}'=='Select Guide Me'    Guide Me Multi Skip
+
+Guide Me Multi Skip
+    Click Link    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[1]/div/div/a[3]
+    Comment    Estimate Costs
+    Comment    Your Summary
+    Click Link    Skip Question
+    Click Link    Skip Question
+    Click Link    Finish & See Results
+    Click Link    Edit Preferences
+    Editing Preferences Skip
+
+Editing Preferences Skip
+    comment    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div/div/a
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    2    1    ${userFName}
+    Table Cell Should Contain    xpath=html/body/div[3]/div/div[2]/div/div/div/div/div/div[2]/div/div/div[3]/div/table    3    1    ${userFName3}
+    Page Should Not Contain    Dr. Logan, Ted
+    Page Should Not Contain    Dr. Preston, Bill
+    Page Should Not Contain    Dr. Rufus
+
+Select deductible
+    [Arguments]    ${deductible}
+    Set Suite Variable    ${current_deductible}    ${deductible}
+    Check that Deductible page is opened
+    Run Keyword If    '${deductible}'== 'No Preference'    Moving slider    0.00
+    Run Keyword If    '${deductible}'== '$0'    Moving slider    16.67
+    Run Keyword If    '${deductible}'== '$1,000'    Moving slider    33.33
+    Run Keyword If    '${deductible}'== '$2,000'    Moving slider    50.00
+    Run Keyword If    '${deductible}'== '$3,000'    Moving slider    66.67
+    Run Keyword If    '${deductible}'== '$4,000'    Moving slider    83.33
+    Run Keyword If    '${deductible}'== '$6,000'    Moving slider    100.00
+    Click Link    Save & Continue
+
+Check that Deductible page is opened
+    Wait Until Page Contains    What is a deductible?    ${SELENIUM_TIMEOUT}
+
+Select Co-insurance radio button
+    [Arguments]    ${doctor_opt}
+    Set Suite Variable    ${current_doctor_opt}    ${doctor_opt}
+    Check that Doctor Visits page is opened
+    Run Keyword If    "${doctor_opt}"=="Yes"    Click Element    Xpath=//*[@id='Yes']
+    #    Run Keyword If    "${doctor_opt}"=="Yes"    Doctor lookup
+    Run Keyword If    '${doctor_opt}'=='No'    Click Element    Xpath=//*[@id='No']
+    Comment    Run Keyword If    '${doctor_opt}'=='No Preference'    Click Element    id=No_Preference
+    Click Link    Save & Continue
+
+Select HSA radio button
+    [Arguments]    ${doctor_opt}
+    Set Suite Variable    ${current_doctor_opt}    ${doctor_opt}
+    Wait until page contains    Do you want a health plan that works with a Health Savings Account (HSA)?    ${SELENIUM_TIMEOUT}
+    Run Keyword If    "${doctor_opt}"=="Yes"    Click Element    Xpath=//*[@id='Yes']
+    #    Run Keyword If    "${doctor_opt}"=="Yes"    Doctor lookup
+    Run Keyword If    '${doctor_opt}'=='No'    Click Element    Xpath=//*[@id='No']
+    Comment    Run Keyword If    '${doctor_opt}'=='No Preference'    Click Element    id=No_Preference
+    Comment    Click Link    Save & Continue
+
+Moving slider
+    [Arguments]    ${slide_to}
+    Mouse Down    id=handle_questionSlider
+    Mouse Up    xpath=//*[@style='left:${slide_to}%']
+
+Check that Doctor Visits page is opened
+    Wait Until Page Contains    What is co-insurance?    ${SELENIUM_TIMEOUT}
+
+Consumer Enter Details In Prior To Applying Screen
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Input Text    userFirstName    ${userFName}
+    Input Text    userLastName    ${userLName}
+    Input Text    name=priorToApplyingInfo.userProfile.address.addrLine1    ad1
+    Input Text    name=priorToApplyingInfo.userProfile.address.city    LA
+    Select From List    name=priorToApplyingInfo.userProfile.address.stateAbbr    CA
+    Input Text    name=priorToApplyingInfo.userProfile.address.zip    90210
+    Input Text    name=priorToApplyingInfo.userProfile.phoneNumbers[0].number    111-111-1111
+    Select From List    name=priorToApplyingInfo.userProfile.phoneNumbers[0].type    1
+    Input Text    name=priorToApplyingInfo.userProfile.user.emailAddress    ${email}
+    Select From List    name=priorToApplyingInfo.userProfile.preferredContactMethod    Home
+    Select From List    name=priorToApplyingInfo.userProfile.bestContactTime    Afternoon
+    Input Text    name=priorToApplyingInfo.registrationInfo.userId    ${userName}
+    Input Text    name=priorToApplyingInfo.registrationInfo.password    password1
+    Input Text    name=priorToApplyingInfo.registrationInfo.confirmPassword    password1
+    Select From List    name=priorToApplyingInfo.registrationInfo.secretQuestion    What city were you born in?
+    Input Text    name=priorToApplyingInfo.registrationInfo.secretAnswer    demo
+    Select Radio Button    priorToApplyingInfo.submissionMethod    online
+    Run Keyword and Ignore Error    Select Radio Button    priorToApplyingInfo.userProfile.workingWithAnAgent    N
+    Click Link    Continue
+
+Click Enroll Now
+    Click Link    Enroll Now
+
+Registered Consumer Shop For Plan
+    Registered Consumer Logs Into Application
+    Click Button    Find a Plan
+
+Registered Consumer Logs Into Application
+    Click Link    Returning User Login
+    Wait Until Page Contains    Welcome    ${SELENIUM_TIMEOUT}    Welcome screen has not displayed
+    Input Text    name=username    GhostRider
+    Input Text    name=password    abcd1234
+    Comment    Input Text    name=username    ${registeredUserId}
+    Comment    Input Text    name=password    password1
+    Sleep    2s
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Click Button    name=login.button
+    Wait Until Page Contains    My Account    ${SELENIUM_TIMEOUT}    My Account screen has not displayed
+
+Logs Out From The Application
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Mouse over    css=.welcomeText
+    Sleep    2s
+    Wait Until Keyword Succeeds    ${SELENIUM_TIMEOUT}    1s    Click Link    Log Out
+
+Verify Application Checklist
+    Wait Until Keyword Succeeds    120s    1s    Wait Until Page Contains    Application Checklist    ${SELENIUM_TIMEOUT}
+
+Enter details in Prior To Applying page as consumer
+    [Arguments]    ${method}    ${agent}
+    Wait Until Page Contains Element    name=priorToApplyingInfo.userProfile.user.lastName
+    Sleep    5
+    Input Text    priorToApplyingInfo.userProfile.user.firstName    ${userFName}
+    Input Text    priorToApplyingInfo.userProfile.user.lastName    ${userLName}
+    Input Text    priorToApplyingInfo.userProfile.address.addrLine1    Addr 12
+    Input Text    priorToApplyingInfo.userProfile.address.city    Des Moines
+    Input Text    priorToApplyingForm_priorToApplyingInfo_userProfile_user_emailAddress    ${email}
+    Select From List    priorToApplyingForm_priorToApplyingInfo_userProfile_preferredContactMethod    Email
+    Select From List    priorToApplyingForm_priorToApplyingInfo_userProfile_bestContactTime    Morning
+    Input Text    priorToApplyingInfo.registrationInfo.userId    consumer${randNbr}
+    Input Text    priorToApplyingInfo.registrationInfo.password    password${randNbr}
+    Input Text    priorToApplyingInfo.registrationInfo.confirmPassword    password${randNbr}
+    Select From List By Index    priorToApplyingInfo.registrationInfo.secretQuestion    3
+    Input Text    priorToApplyingInfo.registrationInfo.secretAnswer    porsche
+    Run Keyword If    '${method}'=='Online'    Click Element    priorToApplyingInfo.submissionMethod
+    Run Keyword If    '${method}'=='Paper'    Click Element    priorToApplyingInfo.submissionMethod
+    Run Keyword If    '${agent}'=='Yes'    Select Radio Button    priorToApplyingInfo.userProfile.workingWithAnAgent    Y
+    Run Keyword If    '${agent}'=='No'    Select Radio Button    priorToApplyingInfo.userProfile.workingWithAnAgent    N
+    Click Link    Continue
